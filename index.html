@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#1e3c72">
+    <title>布克塔羅牌占卜</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        
+        .card-back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 3px solid #ffd700;
+        }
+        
+        .card-front {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: 3px solid #ffd700;
+        }
+        
+        .card-flip {
+            transform: rotateY(180deg);
+            transition: transform 0.6s;
+        }
+        
+        .card-reversed {
+            transform: rotate(180deg);
+        }
+        
+        .mystical-bg {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        }
+        
+        .glow {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .fan-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .fan-card {
+            position: absolute;
+            width: 60px;
+            height: 90px;
+            transition: all 0.3s ease;
+            transform-origin: bottom center;
+            cursor: pointer;
+        }
+        
+        .fan-card:hover {
+            transform: translateY(-20px) scale(1.1);
+            z-index: 100;
+        }
+        
+        .fan-card.selected {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+    
+/* Layer surfaces */
+  --surface-10: rgba(255,255,255,0.10);
+  --surface-20: rgba(255,255,255,0.20);
+
+  /* Text tokens */
+  --text-base: #ffffff;
+  --text-muted: #d1d5db;      /* Tailwind gray-300 */
+  --text-accent: #fde047;     /* Tailwind yellow-300 */
+  --text-secondary: #bfdbfe;  /* Tailwind blue-200 */
+
+  /* Border tokens */
+  --border-accent-30: rgba(253,224,71,0.30);
+  --border-accent-50: rgba(253,224,71,0.50);
+}
+
+/* Force light color scheme on all devices */
+html { color-scheme: light; -webkit-tap-highlight-color: transparent; }
+@media (prefers-color-scheme: dark) { html { color-scheme: light; } }
+
+/* Map common utility classes to tokens for maintainability */
+.text-white { color: var(--text-base) !important; }
+.text-yellow-300 { color: var(--text-accent) !important; }
+.text-blue-200 { color: var(--text-secondary) !important; }
+.text-gray-300 { color: var(--text-muted) !important; }
+
+.bg-white\/10 { background-color: var(--surface-10) !important; }
+.bg-white\/20 { background-color: var(--surface-20) !important; }
+.hover\:bg-white\/30:hover { background-color: rgba(255,255,255,0.30) !important; }
+
+.border-yellow-300\/30 { border-color: var(--border-accent-30) !important; }
+.border-yellow-300\/50 { border-color: var(--border-accent-50) !important; }
+.border-yellow-400\/30 { border-color: var(--border-accent-30) !important; }
+
+/* Use theme tokens in custom site classes to ensure parity across devices */
+.mystical-bg { background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%); }
+.card-back { background: linear-gradient(135deg, var(--card-back-start) 0%, var(--card-back-end) 100%); border: 3px solid var(--gold); }
+.card-front { background: linear-gradient(135deg, var(--card-front-start) 0%, var(--card-front-end) 100%); border: 3px solid var(--gold); }
+.glow { box-shadow: 0 0 20px rgba(255, 215, 0, 0.50); }
+
+    
+
+/* Inputs & textareas: use the same text color as desktop and don't override background */
+input, textarea {
+  color: var(--text-base) !important;              /* white */
+  -webkit-text-fill-color: var(--text-base) !important; /* iOS Safari */
+  caret-color: var(--text-accent) !important;      /* cursor color for visibility */
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  max-width: 100%;
+  font-size: 16px; /* prevent iOS zoom and improve legibility */
+}
+
+/* Placeholder colors */
+input::placeholder, textarea::placeholder {
+  color: var(--text-secondary) !important;
+  opacity: 1;
+}
+/* iOS placeholder */
+input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
+  color: var(--text-secondary) !important;
+}
+
+/* Autofill overrides (iOS/Android) so text stays white */
+input:-webkit-autofill,
+textarea:-webkit-autofill {
+  -webkit-text-fill-color: var(--text-base) !important;
+  transition: background-color 99999s ease-in-out 0s;
+}
+
+/* Avoid horizontal overflow on mobile */
+html, body {
+  overflow-x: hidden;
+}
+
+/* Ensure spread selection & dialogs share desktop gradient */
+#spreadSection,
+.dialog,
+.modal {
+  background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%) !important;
+  color: var(--text-base) !important;
+}
+
+/* If the textarea needs explicit color (id selector wins) */
+#questionInput {
+  color: var(--text-base) !important;
+  -webkit-text-fill-color: var(--text-base) !important;
+}
+
+/* Prefer light, don't let mobile auto-tint */
+html { color-scheme: light; }
+
+/* iOS Safari specific feature query */
+@supports (-webkit-touch-callout: none) {
+  /* Glass panels that used to be bg-white/20 become too bright on mobile.
+     Pull them back to ~12% opacity to match desktop look. */
+  .bg-white\/20,
+  .bg-white\/30,
+  textarea.bg-white\/20,
+  input.bg-white\/20,
+  .spread-option {
+    background-color: rgba(255,255,255,0.12) !important;
+    -webkit-backdrop-filter: saturate(180%) blur(8px);
+            backdrop-filter: saturate(180%) blur(8px);
+    color: var(--text-base) !important;
+  }
+
+  /* Ensure text is visible inside inputs on iOS Safari */
+  textarea, input {
+    color: var(--text-base) !important;
+    -webkit-text-fill-color: var(--text-base) !important;
+    caret-color: var(--text-accent) !important;
+    font-size: 16px; /* avoid zoom */
+  }
+  textarea::placeholder, input::placeholder {
+    color: var(--text-secondary) !important;
+    opacity: 1;
+  }
+}
+
+/* Force spread-selection cards and dialogs to use the same dark mystical look */
+.spread-option,
+.dialog,
+.modal {
+  background: rgba(255,255,255,0.12) !important;
+  color: var(--text-base) !important;
+  border-color: var(--border-accent-30) !important;
+}
+
+/* Some result/support blocks used warm amber/yellow gradient on mobile — normalize to desktop theme */
+[class*="from-amber-900/20"][class*="to-yellow-900/20"],
+[class*="from-yellow-900/20"][class*="to-amber-900/20"] {
+  background-image: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%) !important;
+}
+
+/* Fix horizontal overflow */
+html, body { overflow-x: hidden; }
+
+</style>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="theme_force.css">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/icon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180x180.png">
+<link rel="mask-icon" href="assets/icons/safari-pinned-tab.svg" color="#0f172a">
+<link rel="shortcut icon" href="favicon.ico">
+<meta name="apple-mobile-web-app-title" content="靈數計算器">
+<meta name="application-name" content="靈數計算器">
+<link rel="preconnect" href="https://cdn.tailwindcss.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body class="mystical-bg min-h-screen text-white">
+    <div class="container mx-auto px-4 py-8">
+        <!-- 標題 -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2 text-yellow-300">🔮 布克塔羅</h1>
+            <p class="text-lg text-blue-200">偉特塔羅牌占卜系統</p>
+        </div>
+
+        <!-- 問題輸入區 -->
+        <div id="questionSection" class="max-w-2xl mx-auto mb-8 bg-white/10 backdrop-blur-sm rounded-lg p-6">
+            <h2 class="text-2xl font-semibold mb-4 text-center">✨ 請輸入你的問題-並在心中默念三次</h2>
+            <textarea 
+                id="questionInput" 
+                placeholder="在此輸入你想要占卜的問題..."
+                class="w-full h-32 p-4 rounded-lg bg-white/20 backdrop-blur-sm border border-yellow-300/50 text-white placeholder-blue-200 resize-none focus:outline-none focus:ring-2 focus:ring-yellow-300"
+            ></textarea>
+            <button 
+                id="nextBtn"
+                class="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 glow"
+            >
+                下一步 - 選擇所需的牌陣
+            </button>
+        </div>
+
+        <!-- 牌陣選擇區 -->
+        <div id="spreadSection" class="max-w-4xl mx-auto mb-8 bg-white/10 backdrop-blur-sm rounded-lg p-6 hidden">
+            <h2 class="text-2xl font-semibold mb-6 text-center">🃏 選擇牌陣</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 時間之流 -->
+                <div class="spread-option bg-white/20 backdrop-blur-sm rounded-lg p-4 cursor-pointer hover:bg-white/30 transition-all duration-300 border border-yellow-300/50" data-spread="timeflow">
+                    <h3 class="text-lg font-semibold mb-2">時間之流</h3>
+                    <p class="text-sm text-blue-200 mb-3">過去、現在、未來</p>
+                    <div class="flex justify-center space-x-2">
+                        <div class="w-8 h-12 bg-gradient-to-b from-purple-400 to-purple-600 rounded border border-yellow-300"></div>
+                        <div class="w-8 h-12 bg-gradient-to-b from-purple-400 to-purple-600 rounded border border-yellow-300"></div>
+                        <div class="w-8 h-12 bg-gradient-to-b from-purple-400 to-purple-600 rounded border border-yellow-300"></div>
+                    </div>
+                </div>
+
+                <!-- 大衛之星牌陣 -->
+                <div class="spread-option bg-white/20 backdrop-blur-sm rounded-lg p-4 cursor-pointer hover:bg-white/30 transition-all duration-300 border border-yellow-300/50" data-spread="davidstar">
+                    <h3 class="text-lg font-semibold mb-2">大衛之星牌陣</h3>
+                    <p class="text-sm text-blue-200 mb-3">全面分析問題</p>
+                    <div class="flex justify-center">
+                        <div class="relative w-16 h-16">
+                            <!-- 上三角 -->
+                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-4 bg-gradient-to-b from-blue-400 to-blue-600 rounded border border-yellow-300"></div>
+                            <div class="absolute top-3 left-1 w-3 h-4 bg-gradient-to-b from-blue-400 to-blue-600 rounded border border-yellow-300"></div>
+                            <div class="absolute top-3 right-1 w-3 h-4 bg-gradient-to-b from-blue-400 to-blue-600 rounded border border-yellow-300"></div>
+                            <!-- 下三角 -->
+                            <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3 h-4 bg-gradient-to-b from-blue-400 to-blue-600 rounded border border-yellow-300"></div>
+                            <div class="absolute bottom-3 left-1 w-3 h-4 bg-gradient-to-b from-blue-400 to-blue-600 rounded border border-yellow-300"></div>
+                            <div class="absolute bottom-3 right-1 w-3 h-4 bg-gradient-to-b from-blue-400 to-blue-600 rounded border border-yellow-300"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- U型牌陣 -->
+                <div class="spread-option bg-white/20 backdrop-blur-sm rounded-lg p-4 cursor-pointer hover:bg-white/30 transition-all duration-300 border border-yellow-300/50" data-spread="ushape">
+                    <h3 class="text-lg font-semibold mb-2">U型牌陣</h3>
+                    <p class="text-sm text-blue-200 mb-3">詳細的發展過程</p>
+                    <div class="flex justify-center">
+                        <div class="flex items-end gap-1">
+                            <!-- 左側：3張牌垂直排列 -->
+                            <div class="flex flex-col gap-1">
+                                <div class="w-3 h-5 bg-gradient-to-b from-green-400 to-green-600 rounded border border-yellow-300"></div>
+                                <div class="w-3 h-5 bg-gradient-to-b from-green-400 to-green-600 rounded border border-yellow-300"></div>
+                                <div class="w-3 h-5 bg-gradient-to-b from-green-400 to-green-600 rounded border border-yellow-300"></div>
+                            </div>
+                            <!-- 中間：1張牌在底部 -->
+                            <div class="flex items-end">
+                                <div class="w-3 h-5 bg-gradient-to-b from-green-400 to-green-600 rounded border border-yellow-300"></div>
+                            </div>
+                            <!-- 右側：3張牌垂直排列 -->
+                            <div class="flex flex-col gap-1">
+                                <div class="w-3 h-5 bg-gradient-to-b from-green-400 to-green-600 rounded border border-yellow-300"></div>
+                                <div class="w-3 h-5 bg-gradient-to-b from-green-400 to-green-600 rounded border border-yellow-300"></div>
+                                <div class="w-3 h-5 bg-gradient-to-b from-green-400 to-green-600 rounded border border-yellow-300"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 選擇牌陣 -->
+                <div class="spread-option bg-white/20 backdrop-blur-sm rounded-lg p-4 cursor-pointer hover:bg-white/30 transition-all duration-300 border border-yellow-300/50" data-spread="choice">
+                    <h3 class="text-lg font-semibold mb-2">選擇牌陣</h3>
+                    <p class="text-sm text-blue-200 mb-3">幫助做出選擇</p>
+                    <div class="flex justify-center">
+                        <div class="flex flex-col items-center gap-1">
+                            <!-- 底部：2張牌分開 -->
+                            <div class="flex gap-4">
+                                <div class="w-4 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded border border-yellow-300"></div>
+                                <div class="w-4 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded border border-yellow-300"></div>
+                            </div>
+                            <!-- 中間：2張牌稍微靠近 -->
+                            <div class="flex gap-2">
+                                <div class="w-4 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded border border-yellow-300"></div>
+                                <div class="w-4 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded border border-yellow-300"></div>
+                            </div>
+                            <!-- 頂部：1張牌 -->
+                            <div class="flex gap-1">
+                                <div class="w-4 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded border border-yellow-300"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 關係(感情牌陣) -->
+                <div class="spread-option bg-white/20 backdrop-blur-sm rounded-lg p-4 cursor-pointer hover:bg-white/30 transition-all duration-300 border border-yellow-300/50" data-spread="relationship">
+                    <h3 class="text-lg font-semibold mb-2">關係(感情牌陣)</h3>
+                    <p class="text-sm text-blue-200 mb-3">感情問題專用</p>
+                    <div class="flex justify-center">
+                        <div class="flex flex-col items-center gap-1">
+                            <!-- 最上方：1張牌 -->
+                            <div class="flex justify-center">
+                                <div class="w-4 h-6 bg-gradient-to-b from-pink-400 to-pink-600 rounded border border-yellow-300"></div>
+                            </div>
+                            <!-- 中上方：1張牌 -->
+                            <div class="flex justify-center">
+                                <div class="w-4 h-6 bg-gradient-to-b from-pink-400 to-pink-600 rounded border border-yellow-300"></div>
+                            </div>
+                            <!-- 最下方：2張牌並排 -->
+                            <div class="flex gap-2">
+                                <div class="w-4 h-6 bg-gradient-to-b from-pink-400 to-pink-600 rounded border border-yellow-300"></div>
+                                <div class="w-4 h-6 bg-gradient-to-b from-pink-400 to-pink-600 rounded border border-yellow-300"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 建議牌陣(解藥牌陣) -->
+                <div class="spread-option bg-white/20 backdrop-blur-sm rounded-lg p-4 cursor-pointer hover:bg-white/30 transition-all duration-300 border border-yellow-300/50" data-spread="advice">
+                    <h3 class="text-lg font-semibold mb-2">建議牌陣(解藥牌陣)</h3>
+                    <p class="text-sm text-blue-200 mb-3">現況與建議</p>
+                    <div class="flex justify-center space-x-2">
+                        <div class="w-8 h-12 bg-gradient-to-b from-teal-400 to-teal-600 rounded border border-yellow-300"></div>
+                        <div class="w-8 h-12 bg-gradient-to-b from-teal-400 to-teal-600 rounded border border-yellow-300"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 洗牌切牌區 -->
+        <div id="shuffleSection" class="max-w-4xl mx-auto mb-8 hidden">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-semibold mb-2">🔄 洗牌與切牌</h2>
+                <p class="text-blue-200">請先洗牌，然後切牌開始占卜</p>
+            </div>
+            
+            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-8">
+                <div class="text-center mb-6">
+                    <div id="shuffleDeck" class="inline-block relative">
+                        <div class="w-32 h-48 card-back rounded-lg flex items-center justify-center text-4xl cursor-pointer hover:scale-105 transition-transform duration-300 glow">
+                            🌟
+                        </div>
+                        <div class="absolute top-1 left-1 w-32 h-48 card-back rounded-lg opacity-70"></div>
+                        <div class="absolute top-2 left-2 w-32 h-48 card-back rounded-lg opacity-40"></div>
+                    </div>
+                </div>
+                
+                <div class="text-center space-y-4">
+                    <button id="shuffleCardsBtn" class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 glow">
+                        🔄 洗牌 (剩餘 <span id="shuffleCount">3</span> 次)
+                    </button>
+                    <br>
+                    <button id="cutCardsBtn" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 hidden">
+                        ✂️ 切牌
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 心態牌區 -->
+        <div id="mindsetSection" class="max-w-4xl mx-auto mb-8 hidden">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-semibold mb-2">💭 心態牌</h2>
+                <p class="text-blue-200">這張牌代表你目前的心態和能量狀態</p>
+            </div>
+            
+            <div id="mindsetCard" class="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+                <!-- 心態牌將由 JavaScript 生成 -->
+            </div>
+            
+            <div class="text-center mt-6">
+                <button id="proceedToDrawBtn" class="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 glow">
+                    繼續抽牌 ➡️
+                </button>
+            </div>
+        </div>
+
+        <!-- 抽牌區 -->
+        <div id="drawSection" class="max-w-6xl mx-auto mb-8 hidden">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-semibold mb-2">🎴 請抽取你的牌</h2>
+                <p class="text-blue-200">點擊牌背來抽取塔羅牌</p>
+                <p class="text-sm text-yellow-300 mt-2">需要抽取 <span id="cardsNeeded">1</span> 張牌</p>
+            </div>
+            
+            <div class="fan-container mb-8">
+                <div id="cardDeck">
+                    <!-- 牌組將由 JavaScript 生成 -->
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <button id="revealBtn" class="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 hidden">
+                    ✨ 查看結果
+                </button>
+            </div>
+        </div>
+
+        <!-- 結果區 -->
+        <div id="resultSection" class="max-w-6xl mx-auto hidden">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-semibold mb-2">🌟 占卜結果</h2>
+                <div id="questionDisplay" class="text-lg text-yellow-300 mb-4"></div>
+                <div id="spreadName" class="text-blue-200"></div>
+            </div>
+            
+            <!-- 心態牌結果 -->
+            <div id="resultMindsetCard" class="mb-8">
+                <!-- 心態牌結果將由 JavaScript 生成 -->
+            </div>
+            
+            <div id="resultCards" class="mb-8">
+                <!-- 結果牌將由 JavaScript 生成 -->
+            </div>
+            
+            <div class="text-center">
+                <button id="newReadingBtn" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 glow">
+                    🔮 開始新的占卜
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 偉特塔羅牌數據 - 完整78張牌
+        const tarotCards = [
+    { name: "愚者", number: "0", suit: "大牌", meaning: "心靈好牌、世俗壞牌；體驗與自由、活在當下", reversedMeaning: "沒有活在當下；內心恐懼而無法體驗；敷衍、失去責任感" },
+    { name: "魔法師", number: "I", suit: "大牌", meaning: "開始的創造；善用知識與經驗，做就對了", reversedMeaning: "精神耗弱；不適合行動；表達障礙、詐欺、溝通不良" },
+    { name: "女祭司", number: "II", suit: "大牌", meaning: "以靜制動；肯定現況，不改變是好的", reversedMeaning: "理智斷線；感情用事；情緒崩潰、口是心非" },
+    { name: "女皇", number: "III", suit: "大牌", meaning: "女性主導；豐盛、收穫、魅力與真愛生活", reversedMeaning: "女性阻礙；慵懶拜金；收穫不佳、無魅力" },
+    { name: "皇帝", number: "IV", suit: "大牌", meaning: "男性主導；規矩制度、按部就班，世俗成就", reversedMeaning: "男性阻礙；沒擔當；剛愎自用、防衛心強" },
+    { name: "教宗", number: "V", suit: "大牌", meaning: "經驗法則；團隊/老師/前輩的帶領", reversedMeaning: "錯誤的團隊或貴人；言行不一；價值觀不合" },
+    { name: "戀人", number: "VI", suit: "大牌", meaning: "結盟/結婚；受祝福的關係，但注意那條蛇", reversedMeaning: "錯誤戀人；婚外情/小三；貌合神離、漸行漸遠" },
+    { name: "戰車", number: "VII", suit: "大牌", meaning: "有優勢、70%成功率；背離情緒理性出征", reversedMeaning: "無優勢或用錯方法；不是你的戰場就果斷撤退" },
+    { name: "力量", number: "VIII", suit: "大牌", meaning: "以柔克剛、以德服人；長期戰役能搞定局面", reversedMeaning: "被問題牽著走；無力感、失去勇氣與溝通" },
+    { name: "隱士", number: "IX", suit: "大牌", meaning: "心靈好牌、世俗壞牌；方向正確但還在路上", reversedMeaning: "方向錯誤；自我封閉、更孤獨、不被理解" },
+    { name: "命運之輪", number: "X", suit: "大牌", meaning: "好運臨門、做一得十；時機對了", reversedMeaning: "時機未到、錯過機會；很衰、運氣不好" },
+    { name: "正義", number: "XI", suit: "大牌", meaning: "做一得一；公平衡量、合法簽約看細節", reversedMeaning: "不合法/造假；不公判決；付出與收穫不對等" },
+    { name: "吊人", number: "XII", suit: "大牌", meaning: "犧牲/奉獻；換位思考、甘願受束縛為大局", reversedMeaning: "不甘受束縛；失去信念、想離卻難離" },
+    { name: "死神", number: "XIII", suit: "大牌", meaning: "結束與蛻變；沒有死哪有生，迎新開始", reversedMeaning: "歹戲拖棚；恐懼改變、不死心但終會結束" },
+    { name: "節制", number: "XIV", suit: "大牌", meaning: "溝通交流/跨出去；做事要有限度與節制", reversedMeaning: "溝通不良；適應不良、跨不出去；不節制" },
+    { name: "惡魔", number: "XV", suit: "大牌", meaning: "世俗好牌、心靈壞牌；等價交換，付出代價", reversedMeaning: "交換不起、被綑綁；捨棄後才能獲得" },
+    { name: "高塔", number: "XVI", suit: "大牌", meaning: "意外/晴天霹靂；認清現實、砍掉重練", reversedMeaning: "你給別人意外；傷害不如預期；小意外/拒絕邀請" },
+    { name: "星星", number: "XVII", suit: "大牌", meaning: "星運加持、成功率提高；有信心與希望", reversedMeaning: "星運逆行、時機不到；由希望變失望" },
+    { name: "月亮", number: "XVIII", suit: "大牌", meaning: "不安但可控；情況不明，居安思危", reversedMeaning: "強作鎮定卻恐懼；極度不安，先冷處理" },
+    { name: "太陽", number: "XIX", suit: "大牌", meaning: "赤子之心；開心快樂、壞事不來、好天氣", reversedMeaning: "美中不足、陰天；生命力不足" },
+    { name: "審判", number: "XX", suit: "大牌", meaning: "好消息/提升；從此階段邁向下一階段，復活", reversedMeaning: "沒消息/壞消息；沒有提升、無法復合" },
+    { name: "世界", number: "XXI", suit: "大牌", meaning: "圓滿完成；好聚好散，邁向新旅程", reversedMeaning: "不圓滿、未完成；無法出去玩" },
+    { name: "權杖ACE", number: "A", suit: "權杖", meaning: "新的行動；記得初心，事情往好的發展", reversedMeaning: "不可行動；失去權力；地下情/內定" },
+    { name: "權杖二", number: "2", suit: "權杖", meaning: "都是好的；選A或B都可以，走或留皆可", reversedMeaning: "處於被動；沒有選擇權，被迫接受" },
+    { name: "權杖三", number: "3", suit: "權杖", meaning: "等待/站對山頭；機會來了就把握", reversedMeaning: "心態太急；站錯山頭，目光不遠" },
+    { name: "權杖四", number: "4", suit: "權杖", meaning: "慶祝；結婚/訂婚/派對；安定安全感", reversedMeaning: "不慶祝；喜事延期/取消" },
+    { name: "權杖五", number: "5", suit: "權杖", meaning: "意見不合的好爭吵；提出定見可促成進展", reversedMeaning: "沒結論的爭吵；暗鬥與混亂、模仿錯誤" },
+    { name: "權杖六", number: "6", suit: "權杖", meaning: "勝利與榮耀；要有人馬擁戴", reversedMeaning: "失敗；不被擁戴" },
+    { name: "權杖七", number: "7", suit: "權杖", meaning: "抵抗/挑戰；堅持到最後就會勝", reversedMeaning: "挑戰失敗；不自量力；不是你的戰場" },
+    { name: "權杖八", number: "8", suit: "權杖", meaning: "快速/旅行/忙碌；事務快速推進", reversedMeaning: "不自由；瞎忙失序；不能旅行" },
+    { name: "權杖九", number: "9", suit: "權杖", meaning: "困頓但仍可一步一步前進；審慎思考", reversedMeaning: "資源臨界；被迫應戰；不能休息" },
+    { name: "權杖十", number: "10", suit: "權杖", meaning: "壓力沉重但甘願承擔；可尋求分擔", reversedMeaning: "非自願承擔；快被壓垮；放不下" },
+    { name: "權杖侍者", number: "侍者", suit: "權杖", meaning: "尋找新方向；好消息；像孩子般的交流", reversedMeaning: "優柔寡斷/停滯；壞消息或誤導" },
+    { name: "權杖騎士", number: "騎士", suit: "權杖", meaning: "掌握機會開創新局；改變/旅行/挑戰", reversedMeaning: "錯失機會；行動延遲；缺乏計畫" },
+    { name: "權杖皇后", number: "皇后", suit: "權杖", meaning: "開朗熱心；領導力與靈感，事業成功", reversedMeaning: "人際不和；衝動消費/投資；情緒化" },
+    { name: "權杖國王", number: "國王", suit: "權杖", meaning: "穩重堅強；行動力強、主導掌控", reversedMeaning: "衝動自大；專制濫權" },
+    { name: "聖杯ACE", number: "A", suit: "聖杯", meaning: "新的喜歡/新戀情；起心動念", reversedMeaning: "不那麼愛了；空虛與不快樂" },
+    { name: "聖杯二", number: "2", suit: "聖杯", meaning: "公平快速的交流/契約；找到合拍夥伴", reversedMeaning: "不公平契約；溝通不良/學習不佳" },
+    { name: "聖杯三", number: "3", suit: "聖杯", meaning: "合作愉快且豐收；重要的第三者/貴人", reversedMeaning: "合作不愉快；感情出現第三者" },
+    { name: "聖杯四", number: "4", suit: "聖杯", meaning: "一個機會；在想要不要做，成功率約25%", reversedMeaning: "拿不到還失去原有；行動不會成功" },
+    { name: "聖杯五", number: "5", suit: "聖杯", meaning: "失戀/失望；需要時間療傷", reversedMeaning: "情緒回歸；走出傷痛" },
+    { name: "聖杯六", number: "6", suit: "聖杯", meaning: "回憶/照顧/傳承；安全的環境與給予", reversedMeaning: "改變照顧關係；你必須照顧別人" },
+    { name: "聖杯七", number: "7", suit: "聖杯", meaning: "不知道自己要什麼；白日夢與迷惑", reversedMeaning: "漸漸明白；不再迷惑" },
+    { name: "聖杯八", number: "8", suit: "聖杯", meaning: "可以離開去追夢；往心之所向出發", reversedMeaning: "不能離開；心更孤獨" },
+    { name: "聖杯九", number: "9", suit: "聖杯", meaning: "志得意滿、成就感；但不打算分享", reversedMeaning: "不滿意；沒成就感" },
+    { name: "聖杯十", number: "10", suit: "聖杯", meaning: "幸福和睦如一家；找到志同道合團隊", reversedMeaning: "團體不和；沒安全感/無法傳承" },
+    { name: "聖杯侍者", number: "侍者", suit: "聖杯", meaning: "新朋友/告白/邀約；情竇初開與服務", reversedMeaning: "曖昧不定；不想負責；取消/延遲" },
+    { name: "聖杯騎士", number: "騎士", suit: "聖杯", meaning: "交際與邀約；浪漫旅行、戀愛機會", reversedMeaning: "逃避現實；謹慎邀約；提防詐欺" },
+    { name: "聖杯皇后", number: "皇后", suit: "聖杯", meaning: "溫柔傾聽；情感支持、善解人意", reversedMeaning: "情緒化/依賴；不誠實/不值得信賴" },
+    { name: "聖杯國王", number: "國王", suit: "聖杯", meaning: "親切慈善；顧家、體貼的熟男", reversedMeaning: "雙面人；外遇風流；不誠實" },
+    { name: "寶劍ACE", number: "A", suit: "寶劍", meaning: "新的計畫；理性與清晰的想法", reversedMeaning: "沒有計畫；錯誤且不理性的計畫" },
+    { name: "寶劍二", number: "2", suit: "寶劍", meaning: "兩難但不急；可再思考後決定", reversedMeaning: "兩難且急；拖延會傷到自己，需快決定" },
+    { name: "寶劍三", number: "3", suit: "寶劍", meaning: "心痛/被背叛；情緒如雨天", reversedMeaning: "你傷害了別人；你背叛了別人" },
+    { name: "寶劍四", number: "4", suit: "寶劍", meaning: "休息/休戰；關係停滯、心很累", reversedMeaning: "不能或不用休息；過勞預警" },
+    { name: "寶劍五", number: "5", suit: "寶劍", meaning: "爭勝；表面贏實則無所得", reversedMeaning: "挫敗感；但實際沒失去什麼" },
+    { name: "寶劍六", number: "6", suit: "寶劍", meaning: "正在療傷；回家/從A到B；暗度陳倉", reversedMeaning: "無法歸鄉；不能從A到B；傷口公開" },
+    { name: "寶劍七", number: "7", suit: "寶劍", meaning: "困難且帶傷害性的挑戰；偷偷來", reversedMeaning: "偷偷來被抓；大禍臨頭" },
+    { name: "寶劍八", number: "8", suit: "寶劍", meaning: "作繭自縛；被自己的想法困住", reversedMeaning: "想開了；自由了" },
+    { name: "寶劍九", number: "9", suit: "寶劍", meaning: "噩夢與煩惱；先看清局勢去處理", reversedMeaning: "更嚴重無法處理；先冷處理" },
+    { name: "寶劍十", number: "10", suit: "寶劍", meaning: "結束/死心；精神黑暗到絕望", reversedMeaning: "光明重現；迎向曙光" },
+    { name: "寶劍侍者", number: "侍者", suit: "寶劍", meaning: "打聽消息；提高警覺/學習中", reversedMeaning: "散播謠言/口舌是非；隱私曝光" },
+    { name: "寶劍騎士", number: "騎士", suit: "寶劍", meaning: "衝刺與快節奏；有困難但可立即處理", reversedMeaning: "困難加劇被拖延；沮喪消息/意外" },
+    { name: "寶劍皇后", number: "皇后", suit: "寶劍", meaning: "言詞犀利；獨立、洞察強，分析一針見血", reversedMeaning: "分離/失戀的痛更深；搬弄是非" },
+    { name: "寶劍國王", number: "國王", suit: "寶劍", meaning: "嚴肅公正；專業理性、決斷溝通強", reversedMeaning: "脾氣壞；冷血無情、專業不足/不公" },
+    { name: "錢幣ACE", number: "A", suit: "錢幣", meaning: "新工作/新財富；務實關係與豐盛", reversedMeaning: "不務實/掉錢；新財富不穩、用錢買關係" },
+    { name: "錢幣二", number: "2", suit: "錢幣", meaning: "可以兼得；周轉雖苦仍游刃有餘", reversedMeaning: "不能兼得；棄車保帥；周轉不靈" },
+    { name: "錢幣三", number: "3", suit: "錢幣", meaning: "專業合作愉快；建立穩固基礎", reversedMeaning: "不專業/拆夥；基礎不穩固" },
+    { name: "錢幣四", number: "4", suit: "錢幣", meaning: "小氣保守；收入不斷增加但不願分享", reversedMeaning: "極度小氣無安全感；覺得錢不見了" },
+    { name: "錢幣五", number: "5", suit: "錢幣", meaning: "財務低潮的窮鬼牌；看不到心靈財富", reversedMeaning: "找到方法走出財務低潮" },
+    { name: "錢幣六", number: "6", suit: "錢幣", meaning: "雇傭/上對下交換；找到滿意工作", reversedMeaning: "天秤失衡；不願再交換" },
+    { name: "錢幣七", number: "7", suit: "錢幣", meaning: "投資前思考目的；感情是一門投資", reversedMeaning: "投資賠錢；不願繼續；選錯人" },
+    { name: "錢幣八", number: "8", suit: "錢幣", meaning: "努力工作/精進；關係努力維持前進", reversedMeaning: "不認真/志不在此；無法獲收益" },
+    { name: "錢幣九", number: "9", suit: "錢幣", meaning: "被動收入；有錢有閒、悠閒環境", reversedMeaning: "有錢沒閒或沒錢有閒；偽單身/被欺騙" },
+    { name: "錢幣十", number: "10", suit: "錢幣", meaning: "有錢的象徵；財務圓滿，重財不重情", reversedMeaning: "因情感疏離致財務危機；家庭不和" },
+    { name: "錢幣侍者", number: "侍者", suit: "錢幣", meaning: "腳踏實地認真學習；小進帳/小生意", reversedMeaning: "浪費金錢；知識貧乏/研究不深" },
+    { name: "錢幣騎士", number: "騎士", suit: "錢幣", meaning: "謹慎務實；努力累積與理財/定點旅行", reversedMeaning: "無心工作不負責；財務相關行動不佳" },
+    { name: "錢幣皇后", number: "皇后", suit: "錢幣", meaning: "繁榮安定；理財得宜，給予支持照顧", reversedMeaning: "吝嗇寒酸；財務出問題/亂花錢" },
+    { name: "錢幣國王", number: "國王", suit: "錢幣", meaning: "富裕踏實；保守務實、金主型人物", reversedMeaning: "吝嗇固執貪婪；財務危機/失去靠山" }
+];
+
+        // 牌陣配置
+        const spreads = {
+            timeflow: {
+                name: "時間之流",
+                positions: ["過去", "現在", "未來"],
+                cardCount: 3
+            },
+            davidstar: {
+                name: "大衛之星牌陣",
+                positions: ["過去", "現在", "未來", "原因", "環境", "對策"],
+                cardCount: 6
+            },
+            ushape: {
+                name: "U型牌陣",
+                positions: ["過去", "現在", "中間過程", "慣性方向", "環境", "困難", "答案"],
+                cardCount: 7
+            },
+            choice: {
+                name: "選擇牌陣",
+                positions: ["現況", "選項A過程", "選項B過程", "選項A結果", "選項B結果"],
+                cardCount: 5
+            },
+            relationship: {
+                name: "關係(感情牌陣)",
+                positions: ["抽牌人現況(狀態)", "對方現況(狀態)", "過程", "結果"],
+                cardCount: 4
+            },
+            advice: {
+                name: "建議牌陣(解藥牌陣)",
+                positions: ["現況", "建議"],
+                cardCount: 2
+            }
+        };
+
+        let currentQuestion = "";
+        let currentSpread = "";
+        let selectedCards = [];
+        let drawnCards = [];
+        let shuffledDeck = [];
+        let mindsetCard = null;
+        let shuffleRemaining = 3;
+        let supportCards = {}; // 儲存每個位置的輔助牌
+        let supportCardCounts = {}; // 記錄每個位置已抽取的輔助牌數量
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('nextBtn').addEventListener('click', showSpreadSelection);
+            
+            document.querySelectorAll('.spread-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    selectSpread(this.dataset.spread);
+                });
+            });
+
+            document.getElementById('shuffleCardsBtn').addEventListener('click', performShuffle);
+            document.getElementById('cutCardsBtn').addEventListener('click', performCut);
+            document.getElementById('proceedToDrawBtn').addEventListener('click', proceedToDrawing);
+            document.getElementById('revealBtn').addEventListener('click', revealResults);
+            document.getElementById('newReadingBtn').addEventListener('click', startNewReading);
+        }
+
+        function showSpreadSelection() {
+            const question = document.getElementById('questionInput').value.trim();
+            if (!question) {
+                alert('請先輸入你的問題！');
+                return;
+            }
+            
+            currentQuestion = question;
+            document.getElementById('questionSection').classList.add('hidden');
+            document.getElementById('spreadSection').classList.remove('hidden');
+        }
+
+        function selectSpread(spreadType) {
+            currentSpread = spreadType;
+            document.getElementById('spreadSection').classList.add('hidden');
+            document.getElementById('shuffleSection').classList.remove('hidden');
+            
+            // 重置洗牌狀態
+            shuffleRemaining = 3;
+            document.getElementById('shuffleCount').textContent = shuffleRemaining;
+            document.getElementById('shuffleCardsBtn').classList.remove('hidden');
+            document.getElementById('cutCardsBtn').classList.add('hidden');
+            
+            // 初始化牌組
+            shuffledDeck = [...tarotCards];
+        }
+
+        function performShuffle() {
+            // 洗牌動畫效果
+            const shuffleDeck = document.getElementById('shuffleDeck');
+            shuffleDeck.style.transform = 'rotate(10deg)';
+            
+            setTimeout(() => {
+                shuffleDeck.style.transform = 'rotate(-10deg)';
+            }, 200);
+            
+            setTimeout(() => {
+                shuffleDeck.style.transform = 'rotate(0deg)';
+            }, 400);
+            
+            // 實際洗牌邏輯
+            for (let i = shuffledDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledDeck[i], shuffledDeck[j]] = [shuffledDeck[j], shuffledDeck[i]];
+            }
+            
+            shuffleRemaining--;
+            document.getElementById('shuffleCount').textContent = shuffleRemaining;
+            
+            if (shuffleRemaining <= 0) {
+                document.getElementById('shuffleCardsBtn').classList.add('hidden');
+                document.getElementById('cutCardsBtn').classList.remove('hidden');
+            }
+        }
+
+        function performCut() {
+    // 切牌動畫
+    const shuffleDeck = document.getElementById('shuffleDeck');
+    shuffleDeck.style.transform = 'translateX(-20px)';
+    setTimeout(() => {
+        shuffleDeck.style.transform = 'translateX(20px)';
+    }, 300);
+    setTimeout(() => {
+        shuffleDeck.style.transform = 'translateX(0px)';
+    }, 600);
+
+    // 切牌邏輯 - 隨機切點
+    const cutPoint = Math.floor(Math.random() * (shuffledDeck.length - 20)) + 10;
+    const topHalf = shuffledDeck.slice(0, cutPoint);
+    const bottomHalf = shuffledDeck.slice(cutPoint);
+    shuffledDeck = [...bottomHalf, ...topHalf];
+
+    // 抽取心態牌（第一張）並加入逆位機率
+    const isReversed = Math.random() < 0.5;
+    mindsetCard = {
+        ...shuffledDeck[0],
+        reversed: isReversed
+    };
+
+    // 從牌堆移除該張，並放回牌堆底，維持 78 張可抽
+    shuffledDeck = shuffledDeck.slice(1);
+    shuffledDeck.push(mindsetCard);
+
+    setTimeout(() => {
+        document.getElementById('shuffleSection').classList.add('hidden');
+        document.getElementById('mindsetSection').classList.remove('hidden');
+        displayMindsetCard();
+    }, 800);
+}
+
+        function displayMindsetCard() {
+            const mindsetContainer = document.getElementById('mindsetCard');
+            const meaning = mindsetCard.reversed ? mindsetCard.reversedMeaning : mindsetCard.meaning;
+            const orientation = mindsetCard.reversed ? "逆位" : "正位";
+            
+            mindsetContainer.innerHTML = `
+                <div class="flex items-center justify-center">
+                    <div class="card-front w-32 h-48 rounded-lg flex flex-col items-center justify-center text-center mr-6 ${mindsetCard.reversed ? 'card-reversed' : ''} glow">
+                        <div class="text-sm font-bold text-yellow-300">${mindsetCard.number}</div>
+                        <div class="text-lg font-semibold text-white mb-2">${mindsetCard.name}</div>
+                        <div class="text-sm text-blue-200">${mindsetCard.suit}</div>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <h3 class="text-2xl font-semibold text-yellow-300 mb-2">💭 心態牌</h3>
+                        <h4 class="text-xl font-medium text-white mb-2">${mindsetCard.name} (${orientation})</h4>
+                        <p class="text-blue-200 text-lg leading-relaxed">${meaning}</p>
+                        <p class="text-sm text-gray-300 mt-4">這張牌反映了你目前面對這個問題時的內在狀態和心理準備。</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function proceedToDrawing() {
+            document.getElementById('mindsetSection').classList.add('hidden');
+            document.getElementById('drawSection').classList.remove('hidden');
+            
+            // 顯示需要抽取的牌數
+            document.getElementById('cardsNeeded').textContent = spreads[currentSpread].cardCount;
+            
+            createCardDeck();
+        }
+
+        function createCardDeck() {
+    const deck = document.getElementById('cardDeck');
+    deck.innerHTML = '';
+
+    // 與實際可抽數同步（包含心態牌放回後為 78）
+    const totalCards = shuffledDeck.length;
+    const fanAngle = 140; // 扇形總角度增加以容納更多牌
+    const angleStep = fanAngle / (totalCards - 1); // 每張牌之間的角度
+    const startAngle = -fanAngle / 2; // 起始角度（從左開始）
+    const radius = 280; // 單一半徑
+
+    // 單層扇形排列
+    for (let i = 0; i < totalCards; i++) {
+        const card = document.createElement('div');
+        card.className = 'fan-card card-back rounded-lg flex items-center justify-center text-lg';
+        card.innerHTML = '🌟';
+
+        const angle = startAngle + (i * angleStep);
+        const radian = (angle * Math.PI) / 180;
+
+        const x = Math.sin(radian) * radius;
+        const y = -Math.cos(radian) * radius * 0.4 + 150;
+        card.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+        card.style.zIndex = 50 - Math.abs(i - Math.floor(totalCards / 2));
+
+        const cardData = shuffledDeck[i];
+        card.addEventListener('click', function () {
+            drawCard(this, cardData);
+        });
+
+        deck.appendChild(card);
+    }
+}
+
+        function drawCard(cardElement, selectedCard) {
+    if (selectedCards.length >= spreads[currentSpread].cardCount) {
+        return;
+    }
+    if (!selectedCard || !selectedCard.name) { console.warn('Invalid card picked:', selectedCard); return; }
+    const isReversed = Math.random() < 0.5;
+    drawnCards.push({
+        ...selectedCard,
+        reversed: isReversed,
+        position: spreads[currentSpread].positions[selectedCards.length]
+    });
+    selectedCards.push(cardElement);
+    // 從牌堆中移除避免重複
+    const idx = shuffledDeck.indexOf(selectedCard);
+    if (idx !== -1) shuffledDeck.splice(idx, 1);
+    // 視覺選中效果
+    cardElement.classList.add('selected');
+    const remaining = spreads[currentSpread].cardCount - selectedCards.length;
+    if (remaining > 0) {
+        document.getElementById('cardsNeeded').textContent = remaining;
+    } else {
+        document.getElementById('cardsNeeded').textContent = '已完成';
+        document.getElementById('revealBtn').classList.remove('hidden');
+    }
+}
+
+        function revealResults() {
+            document.getElementById('drawSection').classList.add('hidden');
+            document.getElementById('resultSection').classList.remove('hidden');
+            
+            document.getElementById('questionDisplay').textContent = `問題：${currentQuestion}`;
+            document.getElementById('spreadName').textContent = `牌陣：${spreads[currentSpread].name}`;
+            
+            displayResults();
+        }
+
+        function displayResults() {
+            // 顯示心態牌結果
+            const mindsetContainer = document.getElementById('resultMindsetCard');
+            const mindsetMeaning = mindsetCard.reversed ? mindsetCard.reversedMeaning : mindsetCard.meaning;
+            const mindsetOrientation = mindsetCard.reversed ? "逆位" : "正位";
+            
+            mindsetContainer.innerHTML = `
+                <div class="bg-gradient-to-r from-purple-900/30 to-pink-900/30 backdrop-blur-sm rounded-lg p-6 mb-6 border border-yellow-300/30">
+                    <div class="flex items-center">
+                        <div class="card-front w-24 h-36 rounded-lg flex flex-col items-center justify-center text-center mr-6 ${mindsetCard.reversed ? 'card-reversed' : ''} glow">
+                            <div class="text-sm font-bold text-yellow-300">${mindsetCard.number}</div>
+                            <div class="text-base font-semibold text-white">${mindsetCard.name}</div>
+                            <div class="text-xs text-blue-200">${mindsetCard.suit}</div>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-yellow-300 mb-2">💭 心態牌</h3>
+                            <h4 class="text-lg font-medium text-white mb-2">${mindsetCard.name} (${mindsetOrientation})</h4>
+                            <p class="text-blue-200">${mindsetMeaning}</p>
+                        </div>
+                    </div>
+                    <div id="mindset-support-cards" class="mt-4"></div>
+                </div>
+            `;
+            
+            // 顯示牌陣結果
+            const resultContainer = document.getElementById('resultCards');
+            resultContainer.innerHTML = '';
+            
+            drawnCards.forEach((card, index) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-4';
+                
+                const meaning = card.reversed ? card.reversedMeaning : card.meaning;
+                const orientation = card.reversed ? "逆位" : "正位";
+                
+                cardDiv.innerHTML = `
+                    <div class="flex items-center mb-4">
+                        <div class="card-front w-20 h-28 rounded-lg flex flex-col items-center justify-center text-center mr-4 ${card.reversed ? 'card-reversed' : ''}">
+                            <div class="text-xs font-bold text-yellow-300">${card.number}</div>
+                            <div class="text-sm font-semibold text-white">${card.name}</div>
+                            <div class="text-xs text-blue-200">${card.suit}</div>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-yellow-300 mb-2">${card.position}</h3>
+                            <h4 class="text-lg font-medium text-white mb-1">${card.name} (${orientation})</h4>
+                            <p class="text-blue-200">${meaning}</p>
+                        </div>
+                    </div>
+                    <div class="text-center mb-4">
+                        <button onclick="drawSupportCard(${index})" class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 text-sm">
+                            ✨ 抽取輔助牌 (<span id="support-count-${index}">2</span>/2)
+                        </button>
+                    </div>
+                    <div id="support-cards-${index}" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                `;
+                
+                resultContainer.appendChild(cardDiv);
+            });
+        }
+
+        function drawSupportCard(position) {
+            // 檢查是否還有剩餘牌可抽
+            if (shuffledDeck.length === 0) {
+                alert('沒有剩餘的牌可以抽取了！');
+                return;
+            }
+            
+            // 初始化位置的輔助牌記錄
+            if (!supportCards[position]) {
+                supportCards[position] = [];
+                supportCardCounts[position] = 0;
+            }
+            
+            // 檢查是否已達到上限
+            if (supportCardCounts[position] >= 2) {
+                alert('此位置已達到輔助牌上限（2張）！');
+                return;
+            }
+            
+            // 從剩餘牌組中抽取一張
+            const cardIndex = Math.floor(Math.random() * shuffledDeck.length);
+            const supportCard = {
+                ...shuffledDeck[cardIndex],
+                reversed: Math.random() < 0.5
+            };
+            
+            // 從牌組中移除已抽取的牌
+            shuffledDeck.splice(cardIndex, 1);
+            
+            // 記錄輔助牌
+            supportCards[position].push(supportCard);
+            supportCardCounts[position]++;
+            
+            // 顯示輔助牌
+            displaySupportCard(position, supportCard, supportCardCounts[position]);
+            
+            // 更新按鈕狀態
+            updateSupportButton(position);
+        }
+        
+        function displaySupportCard(position, card, cardNumber) {
+            const meaning = card.reversed ? card.reversedMeaning : card.meaning;
+            const orientation = card.reversed ? "逆位" : "正位";
+            
+            const cardHtml = `
+                <div class="bg-gradient-to-r from-amber-900/20 to-yellow-900/20 backdrop-blur-sm rounded-lg p-4 border border-yellow-400/30">
+                    <div class="flex items-center">
+                        <div class="card-front w-16 h-24 rounded-lg flex flex-col items-center justify-center text-center mr-4 ${card.reversed ? 'card-reversed' : ''} glow">
+                            <div class="text-xs font-bold text-yellow-300">${card.number}</div>
+                            <div class="text-xs font-semibold text-white">${card.name}</div>
+                            <div class="text-xs text-blue-200">${card.suit}</div>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-yellow-400 mb-1">輔助牌 ${cardNumber}</h4>
+                            <h5 class="text-base font-medium text-white mb-1">${card.name} (${orientation})</h5>
+                            <p class="text-blue-200 text-sm">${meaning}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const containerId = position === 'mindset' ? 'mindset-support-cards' : `support-cards-${position}`;
+            const container = document.getElementById(containerId);
+            
+            if (container) {
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            }
+        }
+        
+        function updateSupportButton(position) {
+            const remaining = 2 - supportCardCounts[position];
+            const countId = position === 'mindset' ? 'mindset-support-count' : `support-count-${position}`;
+            const countElement = document.getElementById(countId);
+            
+            if (countElement) {
+                countElement.textContent = remaining;
+                
+                // 如果已達上限，禁用按鈕
+                if (remaining <= 0) {
+                    const button = countElement.closest('button');
+                    if (button) {
+                        button.disabled = true;
+                        button.classList.add('opacity-50', 'cursor-not-allowed');
+                        button.innerHTML = '✨ 輔助牌已滿 (0/2)';
+                    }
+                }
+            }
+        }
+
+        function startNewReading() {
+            currentQuestion = "";
+            currentSpread = "";
+            selectedCards = [];
+            drawnCards = [];
+            shuffledDeck = [];
+            mindsetCard = null;
+            shuffleRemaining = 3;
+            supportCards = {};
+            supportCardCounts = {};
+            
+            document.getElementById('questionInput').value = "";
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('shuffleSection').classList.add('hidden');
+            document.getElementById('mindsetSection').classList.add('hidden');
+            document.getElementById('drawSection').classList.add('hidden');
+            document.getElementById('spreadSection').classList.add('hidden');
+            document.getElementById('questionSection').classList.remove('hidden');
+        }
+    </script>
+
+<!-- RWS face card support (added by assistant v2) -->
+<style id="rws-card-style">
+  .rws-card-frame{position:relative;display:inline-flex;align-items:center;justify-content:center}
+  .rws-img{width:8rem;height:auto;border-radius:.5rem;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+  .rws-img.sm{width:4rem}.rws-img.md{width:6rem}.rws-img.lg{width:8rem}.rws-img.xl{width:12rem}
+  .rws-reversed{transform:rotate(180deg)}
+  .rws-fallback{display:none;width:8rem;height:12rem;border-radius:.5rem;background:linear-gradient(135deg,rgba(253,224,71,.12),rgba(59,130,246,.12));border:1px solid rgba(253,224,71,.25);padding:.5rem;text-align:center;justify-content:center;align-items:center;flex-direction:column}
+  .rws-card-frame.no-img .rws-fallback{display:flex}
+</style>
+<script>
+(function(){
+  function findIndexByCard(card){
+    try{
+      if (typeof tarotCards === 'undefined' || !Array.isArray(tarotCards)) return -1;
+      let idx = tarotCards.findIndex(c=>c.name===card.name && c.number===card.number && c.suit===card.suit);
+      if (idx >= 0) return idx;
+      idx = tarotCards.findIndex(c=>c.name===card.name);
+      return idx;
+    }catch(e){ return -1; }
+  }
+  function getCardImagePath(card){
+    const idx = findIndexByCard(card);
+    if (idx < 0) return 'assets/cards/__missing__.jpg';
+    const n = String(idx).padStart(2,'0');
+    return `assets/cards/${n}.jpg`;
+  }
+  function imageOrFallbackHTML(card,sizeClass){
+    const reversed = card.reversed ? 'rws-reversed' : '';
+    const src = getCardImagePath(card);
+    const safeName = (card.name||'') + (card.reversed?'（逆位）':'（正位）');
+    return `<div class="rws-card-frame">
+      <img class="rws-img ${sizeClass||'lg'} ${reversed}" src="${src}" alt="${safeName}" onerror="this.closest('.rws-card-frame').classList.add('no-img')"/>
+      <div class="rws-fallback ${reversed}"><div class="text-xs font-bold text-yellow-300">${card.number||''}</div><div class="text-base font-semibold text-white">${card.name||''}</div><div class="text-xs text-blue-200">${card.suit||''}</div></div>
+    </div>`;
+  }
+  window.displayMindsetCard = function(){
+    const el = document.getElementById('mindsetCard');
+    const meaning = mindsetCard.reversed ? mindsetCard.reversedMeaning : mindsetCard.meaning;
+    const ori = mindsetCard.reversed ? '逆位' : '正位';
+    el.innerHTML = `<div class="flex items-center justify-center gap-6">
+      ${imageOrFallbackHTML(mindsetCard,'xl')}
+      <div class="flex-1 text左">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-2">💭 心態牌</h3>
+        <h4 class="text-xl font-medium text-white mb-2">${mindsetCard.name} (${ori})</h4>
+        <p class="text-blue-200 text-lg leading-relaxed">${meaning}</p>
+        <p class="text-sm text-gray-300 mt-4">這張牌反映了你目前面對這個問題時的內在狀態和心理準備。</p>
+      </div></div>`;
+  };
+  window.displaySupportCard = function(position,card,cardNumber){
+    const meaning = card.reversed ? card.reversedMeaning : card.meaning;
+    const ori = card.reversed ? '逆位' : '正位';
+    const html = `<div class="bg-gradient-to-r from-amber-900/20 to-yellow-900/10 backdrop-blur-sm rounded-lg p-4 border border-yellow-400/30">
+      <div class="flex items-center gap-4">
+        ${imageOrFallbackHTML(card,'md')}
+        <div class="flex-1"><h4 class="text-lg font-semibold text-yellow-400 mb-1">輔助牌 ${cardNumber}</h4>
+        <h5 class="text-base font-medium text-white mb-1">${card.name} (${ori})</h5>
+        <p class="text-blue-200 text-sm">${meaning}</p></div></div></div>`;
+    const containerId = position==='mindset' ? 'mindset-support-cards' : `support-cards-${position}`;
+    const c = document.getElementById(containerId);
+    if (c) c.insertAdjacentHTML('beforeend', html);
+  };
+  window.displayResults = function(){
+    const mc = document.getElementById('resultMindsetCard');
+    const mm = mindsetCard.reversed ? mindsetCard.reversedMeaning : mindsetCard.meaning;
+    const mo = mindsetCard.reversed ? '逆位' : '正位';
+    mc.innerHTML = `<div class="bg-gradient-to-r from-purple-900/30 to-blue-900/10 backdrop-blur-sm rounded-lg p-6 mb-6 border border-yellow-300/30">
+      <div class="flex items-center gap-6">${imageOrFallbackHTML(mindsetCard,'lg')}
+      <div class="flex-1"><h3 class="text-xl font-semibold text-yellow-300 mb-2">💭 心態牌</h3>
+      <h4 class="text-lg font-medium text白 mb-1">${mindsetCard.name} (${mo})</h4>
+      <p class="text-blue-200">${mm}</p><div id="mindset-support-cards" class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3"></div></div></div></div>`;
+    const rc = document.getElementById('resultCards'); rc.innerHTML='';
+    const positions = Object.keys(drawnCards);
+    positions.forEach((position,index)=>{
+      const card = drawnCards[position];
+      const meaning = card.reversed ? card.reversedMeaning : card.meaning;
+      const ori = card.reversed ? '逆位' : '正位';
+      const div = document.createElement('div');
+      div.className = "bg-gradient-to-r from-blue-900/20 to-indigo-900/10 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-blue-400/20";
+      div.innerHTML = `<div class="flex items-center gap-5">
+        ${imageOrFallbackHTML(card,'lg')}
+        <div class="flex-1"><h3 class="text-lg font-semibold text-blue-300 mb-1">${index+1}. ${spreads[currentSpread].positions[index]}</h3>
+        <h4 class="text-lg font-medium text-white mb-1">${card.name} (${ori})</h4>
+        <p class="text-blue-200">${meaning}</p></div></div>
+        <div class="text-center mt-3">
+          <button onclick="drawSupportCard(${index})" class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-200 font-semibold py-2 px-4 rounded-lg transition-all duration-300 text-sm">
+            ✨ 抽取輔助牌 (<span id="support-count-${index}">2</span>/2)
+          </button></div>
+        <div id="support-cards-${index}" class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3"></div>`;
+      rc.appendChild(div);
+    });
+  };
+})();</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js').catch(console.error);
+    });
+  }
+</script>
+<!-- dev:offline-test --><a href="offline.html" style="display:none">offline</a>
+</body>
+</html>

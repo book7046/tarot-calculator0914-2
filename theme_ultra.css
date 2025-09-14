@@ -1,0 +1,178 @@
+:root {
+--bg-start: #1e3c72;
+--bg-end: #2a5298;
+--card-back-start: #667eea;
+--card-back-end: #764ba2;
+--card-front-start: #f093fb;
+--card-front-end: #f5576c;
+--gold: #ffd700;
+--glass-10: rgba(255,255,255,0.10);
+--glass-12: rgba(255,255,255,0.12);
+--glass-20: rgba(255,255,255,0.20);
+--glass-30: rgba(255,255,255,0.30);
+--text-base: #ffffff;
+--text-muted: #d1d5db;
+--text-accent: #fde047;
+--text-secondary: #bfdbfe;
+--border-accent-30: rgba(253,224,71,0.30);
+--border-accent-50: rgba(253,224,71,0.50);
+}
+html { color-scheme: light; }
+.mystical-bg {
+background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+}
+.card-back {
+background: linear-gradient(135deg, var(--card-back-start) 0%, var(--card-back-end) 100%);
+border: 3px solid var(--gold);
+}
+.card-front {
+background: linear-gradient(135deg, var(--card-front-start) 0%, var(--card-front-end) 100%);
+border: 3px solid var(--gold);
+}
+.glow { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+.text-white { color: var(--text-base) !important; }
+.text-yellow-300 { color: var(--text-accent) !important; }
+.text-blue-200 { color: var(--text-secondary) !important; }
+.text-gray-300 { color: var(--text-muted) !important; }
+.bg-white\/10 { background-color: var(--glass-10) !important; }
+.bg-white\/20 { background-color: var(--glass-20) !important; }
+.bg-white\/30 { background-color: var(--glass-30) !important; }
+.hover\:bg-white\/30:hover { background-color: var(--glass-30) !important; }
+.border-yellow-300\/30 { border-color: var(--border-accent-30) !important; }
+.border-yellow-300\/50 { border-color: var(--border-accent-50) !important; }
+.border-yellow-400\/30 { border-color: var(--border-accent-30) !important; }
+.spread-option,
+.dialog,
+.modal {
+background: var(--glass-12) !important;
+color: var(--text-base) !important;
+border-color: var(--border-accent-30) !important;
+-webkit-backdrop-filter: saturate(180%) blur(8px);
+backdrop-filter: saturate(180%) blur(8px);
+}
+textarea, input {
+color: var(--text-base) !important;
+-webkit-text-fill-color: var(--text-base) !important;
+caret-color: var(--text-accent) !important;
+font-size: 16px;
+max-width: 100%;
+}
+textarea::placeholder, input::placeholder {
+color: var(--text-secondary) !important;
+opacity: 1;
+}
+@supports (-webkit-touch-callout: none) {
+.bg-white\/20,
+.bg-white\/30,
+textarea.bg-white\/20,
+input.bg-white\/20,
+.spread-option {
+background-color: var(--glass-12) !important;
+}
+}
+[class*="from-amber-900/20"][class*="to-yellow-900/20"],
+[class*="from-yellow-900/20"][class*="to-amber-900/20"] {
+background-image: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%) !important;
+}
+textarea,
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="password"],
+input[type="url"],
+input[type="number"] {
+background-color: var(--glass-12) !important;
+border-color: var(--border-accent-50) !important;
+color: var(--text-base) !important;
+-webkit-text-fill-color: var(--text-base) !important;
+appearance: none;
+-webkit-appearance: none;
+background-clip: padding-box;
+}
+#questionInput,
+textarea#questionInput,
+.question-input {
+background-color: var(--glass-12) !important;
+color: var(--text-base) !important;
+-webkit-text-fill-color: var(--text-base) !important;
+}
+input:-webkit-autofill,
+textarea:-webkit-autofill {
+-webkit-box-shadow: 0 0 0px 1000px var(--glass-12) inset !important;
+box-shadow: 0 0 0px 1000px var(--glass-12) inset !important;
+-webkit-text-fill-color: var(--text-base) !important;
+}
+html, body { overflow-x: hidden; }
+#questionInput,
+textarea#questionInput {
+background-color: var(--glass-12) !important;
+background-image: none !important;
+color: var(--text-base) !important;
+-webkit-text-fill-color: var(--text-base) !important;
+border-color: var(--border-accent-50) !important;
+background-clip: padding-box;
+appearance: none;
+-webkit-appearance: none;
+}
+#questionInput::placeholder,
+textarea#questionInput::placeholder {
+color: var(--text-secondary) !important;
+opacity: 1;
+}
+@supports (-webkit-touch-callout: none) {
+#questionInput,
+textarea#questionInput {
+-webkit-box-shadow: 0 0 0 1000px var(--glass-12) inset !important;
+box-shadow: 0 0 0 1000px var(--glass-12) inset !important;
+}
+}
+textarea,
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="password"],
+input[type="url"],
+input[type="number"],
+input:not([type]) {
+background-color: var(--glass-12) !important;
+background: var(--glass-12) !important;
+background-image: none !important;
+color: var(--text-base) !important;
+-webkit-text-fill-color: var(--text-base) !important;
+border-color: var(--border-accent-50) !important;
+appearance: none !important;
+-webkit-appearance: none !important;
+background-clip: padding-box;
+}
+textarea[style],
+input[style] {
+background-color: var(--glass-12) !important;
+background: var(--glass-12) !important;
+background-image: none !important;
+-webkit-text-fill-color: var(--text-base) !important;
+color: var(--text-base) !important;
+}
+#questionInput,
+textarea#questionInput,
+textarea[name="question"],
+textarea[placeholder*="問題"],
+textarea[placeholder*="question"] {
+background-color: var(--glass-12) !important;
+background: var(--glass-12) !important;
+background-image: none !important;
+-webkit-text-fill-color: var(--text-base) !important;
+color: var(--text-base) !important;
+border-color: var(--border-accent-50) !important;
+}
+input:-webkit-autofill,
+textarea:-webkit-autofill {
+-webkit-box-shadow: 0 0 0 1000px var(--glass-12) inset !important;
+box-shadow: 0 0 0 1000px var(--glass-12) inset !important;
+-webkit-text-fill-color: var(--text-base) !important;
+}
+#questionInput,
+textarea,
+input {
+-webkit-box-shadow: 0 0 0 1000px var(--glass-12) inset !important;
+box-shadow: 0 0 0 1000px var(--glass-12) inset !important;
+}
