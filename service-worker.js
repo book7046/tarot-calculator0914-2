@@ -92,7 +92,9 @@ const PRECACHE_URLS = [
   "./service-worker.js",
   "./theme.css",
   "./theme_force.css",
-  "./theme_ultra.css"
+  "./theme_ultra.css",
+  "./assets/js/tarot-data.js",
+  "./assets/js/app.js"
 ];
 
 // External assets we want to pre-cache on first install (if online)
