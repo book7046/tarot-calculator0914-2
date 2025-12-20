@@ -5,7 +5,7 @@ const tarotCards = [
     { name: "魔法師", number: "I", suit: "大牌", meaning: "開始的創造；善用知識與經驗，做就對了", reversedMeaning: "精神耗弱；不適合行動；表達障礙、詐欺、溝通不良" },
     { name: "女祭司", number: "II", suit: "大牌", meaning: "以靜制動；肯定現況，不改變是好的", reversedMeaning: "理智斷線；感情用事；情緒崩潰、口是心非" },
     { name: "女皇", number: "III", suit: "大牌", meaning: "女性主導；豐盛、收穫、魅力與真愛生活", reversedMeaning: "女性阻礙；慵懶拜金；收穫不佳、無魅力" },
-    { name: "皇帝", number: "IV", suit: "大牌", meaning: "男性主導；規矩制度、按部就班，世俗成就", reversedMeaning: "男性阻礙；沒擔當；剛愎自用、防衛心強" },
+    { name: "國王", number: "IV", suit: "大牌", meaning: "男性主導；規矩制度、按部就班，世俗成就", reversedMeaning: "男性阻礙；沒擔當；剛愎自用、防衛心強" },
     { name: "教宗", number: "V", suit: "大牌", meaning: "經驗法則；團隊/老師/前輩的帶領", reversedMeaning: "錯誤的團隊或貴人；言行不一；價值觀不合" },
     { name: "戀人", number: "VI", suit: "大牌", meaning: "結盟/結婚；受祝福的關係，但注意那條蛇", reversedMeaning: "錯誤戀人；婚外情/小三；貌合神離、漸行漸遠" },
     { name: "戰車", number: "VII", suit: "大牌", meaning: "有優勢、70%成功率；背離情緒理性出征", reversedMeaning: "無優勢或用錯方法；不是你的戰場就果斷撤退" },
@@ -89,4 +89,5 @@ const spreads = {
     choice: { name: "選擇牌陣", positions: ["現況", "選項A過程", "選項B過程", "選項A結果", "選項B結果"], cardCount: 5 },
     relationship: { name: "關係(感情牌陣)", positions: ["抽牌人現況(狀態)", "對方現況(狀態)", "過程", "結果"], cardCount: 4 },
     advice: { name: "建議牌陣(解藥牌陣)", positions: ["現況", "建議"], cardCount: 2 }
+
 };
