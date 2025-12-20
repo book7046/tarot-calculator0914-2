@@ -54,24 +54,106 @@
 
         <div id="spreadSection" class="max-w-4xl mx-auto mb-8 hidden">
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+				 <!-- 時間之流 -->					 
                 <div class="spread-option bg-white/20 backdrop-blur-sm rounded-lg p-4 cursor-pointer hover:bg-white/30 transition-all duration-300 border border-yellow-300/50" data-spread="timeflow">
                     <h3 class="text-lg font-semibold mb-2">時間之流</h3><p class="text-sm text-blue-200">過去、現在、未來</p>
+					<div class="flex justify-center space-x-2">
+                        <div class="w-8 h-12 bg-gradient-to-b from-purple-400 to-purple-600 rounded border border-yellow-300"></div>
+                        <div class="w-8 h-12 bg-gradient-to-b from-purple-400 to-purple-600 rounded border border-yellow-300"></div>
+                        <div class="w-8 h-12 bg-gradient-to-b from-purple-400 to-purple-600 rounded border border-yellow-300"></div>
+                    </div>						  
                 </div>
+				<!-- 大衛之星牌陣 -->						   
                 <div class="spread-option bg-white/20 backdrop-blur-sm rounded-lg p-4 cursor-pointer hover:bg-white/30 transition-all duration-300 border border-yellow-300/50" data-spread="davidstar">
                     <h3 class="text-lg font-semibold mb-2">大衛之星</h3><p class="text-sm text-blue-200">全面分析問題</p>
+					<div class="flex justify-center">
+                        <div class="relative w-16 h-16">
+                            <!-- 上三角 -->
+                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-4 bg-gradient-to-b from-blue-400 to-blue-600 rounded border border-yellow-300"></div>
+                            <div class="absolute top-3 left-1 w-3 h-4 bg-gradient-to-b from-blue-400 to-blue-600 rounded border border-yellow-300"></div>
+                            <div class="absolute top-3 right-1 w-3 h-4 bg-gradient-to-b from-blue-400 to-blue-600 rounded border border-yellow-300"></div>
+                            <!-- 下三角 -->
+                            <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3 h-4 bg-gradient-to-b from-blue-400 to-blue-600 rounded border border-yellow-300"></div>
+                            <div class="absolute bottom-3 left-1 w-3 h-4 bg-gradient-to-b from-blue-400 to-blue-600 rounded border border-yellow-300"></div>
+                            <div class="absolute bottom-3 right-1 w-3 h-4 bg-gradient-to-b from-blue-400 to-blue-600 rounded border border-yellow-300"></div>
+                        </div>
+                    </div>								 
                 </div>
+				<!-- U型牌陣 -->			   
                 <div class="spread-option bg-white/20 backdrop-blur-sm rounded-lg p-4 cursor-pointer hover:bg-white/30 transition-all duration-300 border border-yellow-300/50" data-spread="ushape">
                     <h3 class="text-lg font-semibold mb-2">U型牌陣</h3><p class="text-sm text-blue-200">詳細的發展過程</p>
-                </div>
+                    <div class="flex justify-center">
+                        <div class="flex items-end gap-1">
+                            <!-- 左側：3張牌垂直排列 -->
+                            <div class="flex flex-col gap-1">
+                                <div class="w-3 h-5 bg-gradient-to-b from-green-400 to-green-600 rounded border border-yellow-300"></div>
+                                <div class="w-3 h-5 bg-gradient-to-b from-green-400 to-green-600 rounded border border-yellow-300"></div>
+                                <div class="w-3 h-5 bg-gradient-to-b from-green-400 to-green-600 rounded border border-yellow-300"></div>
+                            </div>
+                            <!-- 中間：1張牌在底部 -->
+                            <div class="flex items-end">
+                                <div class="w-3 h-5 bg-gradient-to-b from-green-400 to-green-600 rounded border border-yellow-300"></div>
+                            </div>
+                            <!-- 右側：3張牌垂直排列 -->
+                            <div class="flex flex-col gap-1">
+                                <div class="w-3 h-5 bg-gradient-to-b from-green-400 to-green-600 rounded border border-yellow-300"></div>
+                                <div class="w-3 h-5 bg-gradient-to-b from-green-400 to-green-600 rounded border border-yellow-300"></div>
+                                <div class="w-3 h-5 bg-gradient-to-b from-green-400 to-green-600 rounded border border-yellow-300"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>								  
+				<!-- 選擇牌陣 -->					 
                 <div class="spread-option bg-white/20 backdrop-blur-sm rounded-lg p-4 cursor-pointer hover:bg-white/30 transition-all duration-300 border border-yellow-300/50" data-spread="choice">
                     <h3 class="text-lg font-semibold mb-2">選擇牌陣</h3><p class="text-sm text-blue-200">幫助做出選擇</p>
+			        <div class="flex justify-center">
+                        <div class="flex flex-col items-center gap-1">
+                            <!-- 底部：2張牌分開 -->
+                            <div class="flex gap-4">
+                                <div class="w-4 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded border border-yellow-300"></div>
+                                <div class="w-4 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded border border-yellow-300"></div>
+                            </div>
+                            <!-- 中間：2張牌稍微靠近 -->
+                            <div class="flex gap-2">
+                                <div class="w-4 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded border border-yellow-300"></div>
+                                <div class="w-4 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded border border-yellow-300"></div>
+                            </div>
+                            <!-- 頂部：1張牌 -->
+                            <div class="flex gap-1">
+                                <div class="w-4 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded border border-yellow-300"></div>
+                            </div>
+                        </div>
+                    </div>				  
                 </div>
+				<!-- 關係(感情牌陣) -->							 
                 <div class="spread-option bg-white/20 backdrop-blur-sm rounded-lg p-4 cursor-pointer hover:bg-white/30 transition-all duration-300 border border-yellow-300/50" data-spread="relationship">
                     <h3 class="text-lg font-semibold mb-2">關係牌陣</h3><p class="text-sm text-blue-200">感情問題專用</p>
+					<div class="flex justify-center">
+                        <div class="flex flex-col items-center gap-1">
+                            <!-- 最上方：1張牌 -->
+                            <div class="flex justify-center">
+                                <div class="w-4 h-6 bg-gradient-to-b from-pink-400 to-pink-600 rounded border border-yellow-300"></div>
+                            </div>
+                            <!-- 中上方：1張牌 -->
+                            <div class="flex justify-center">
+                                <div class="w-4 h-6 bg-gradient-to-b from-pink-400 to-pink-600 rounded border border-yellow-300"></div>
+                            </div>
+                            <!-- 最下方：2張牌並排 -->
+                            <div class="flex gap-2">
+                                <div class="w-4 h-6 bg-gradient-to-b from-pink-400 to-pink-600 rounded border border-yellow-300"></div>
+                                <div class="w-4 h-6 bg-gradient-to-b from-pink-400 to-pink-600 rounded border border-yellow-300"></div>
+                            </div>
+                        </div>
+                    </div>	  
                 </div>
+				<!-- 建議牌陣(解藥牌陣) -->								   
                 <div class="spread-option bg-white/20 backdrop-blur-sm rounded-lg p-4 cursor-pointer hover:bg-white/30 transition-all duration-300 border border-yellow-300/50" data-spread="advice">
                     <h3 class="text-lg font-semibold mb-2">建議牌陣</h3><p class="text-sm text-blue-200">現況與建議</p>
-                </div>
+					<div class="flex justify-center space-x-2">
+                        <div class="w-8 h-12 bg-gradient-to-b from-teal-400 to-teal-600 rounded border border-yellow-300"></div>
+                        <div class="w-8 h-12 bg-gradient-to-b from-teal-400 to-teal-600 rounded border border-yellow-300"></div>
+                    </div>				
+				</div>
             </div>
         </div>
 
