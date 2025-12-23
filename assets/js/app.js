@@ -16,19 +16,19 @@ let deferredPrompt;
 // --- 問題類型配置 ---
 const typeConfig = {
     choice: {
-        examples: "💡 選擇型範例：『請問塔羅牌，我想知道我現在在工作上該做那個選擇對我未來比較好,如果選擇離職對我比較好是選項A,如果選擇繼續待在現在的公司對我比較好是選項B？』",
+        examples: "💡 選擇型範例：『我該選 A 工作還是 B 工作？』",
         spreads: ['choice']
     },
     advice: {
-        examples: "💡 建議型範例：『請問塔羅牌,我該怎麼做才能把塔羅牌學好,請塔羅牌給我一個建議？』",
+        examples: "💡 建議型範例：『針對這項新計畫，塔羅牌有什麼指引？』",
         spreads: ['advice']
     },
     result: {
-        examples: "💡 結果型範例：請問塔羅牌,我想知道我這個月的工作運會如何？』、『請問塔羅牌,我想知道月底業績會如何？』",
+        examples: "💡 結果型範例：『下個月的面試結果會順利嗎？』",
         spreads: ['timeflow', 'davidstar', 'ushape']
     },
     relationship: {
-        examples: "💡 關係型範例：『請問塔羅牌,我想知道我跟xxx三個月(下時間點)內感情如何？』、『我想知道我跟xxx一起合作創業結果會如何？』",
+        examples: "💡 關係型範例：『我與對方的感情未來發展？』",
         spreads: ['relationship']
     }
 };
@@ -40,14 +40,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupEventListeners() {
-    // 問題類型選擇
+    // 類型選擇事件
     document.querySelectorAll('.type-option').forEach(btn => {
         btn.addEventListener('click', function() {
             selectType(this.dataset.type);
         });
     });
 
-    // 回上一步按鈕
+    // 導航按鈕
     document.getElementById('backToTypeBtn').addEventListener('click', () => {
         document.getElementById('questionSection').classList.add('hidden');
         document.getElementById('typeSection').classList.remove('hidden');
@@ -73,7 +73,7 @@ function setupEventListeners() {
     document.getElementById('newReadingBtn').addEventListener('click', startNewReading);
 }
 
-// --- 流程控制 ---
+// --- 流程邏輯 ---
 
 function selectType(type) {
     currentType = type;
@@ -106,7 +106,7 @@ function selectSpread(spreadType) {
     if (typeof tarotCards !== 'undefined') { shuffledDeck = [...tarotCards]; }
 }
 
-// --- 洗牌與切牌 ---
+// --- 洗牌與抽牌介面修復 ---
 
 function performShuffle() {
     const shuffleDeck = document.getElementById('shuffleDeck');
@@ -138,8 +138,6 @@ function performCut() {
     document.getElementById('mindsetSection').classList.remove('hidden');
     displayMindsetCard();
 }
-
-// --- 抽牌邏輯 (修復手機版與計數器) ---
 
 function createCardDeck() {
     const deck = document.getElementById('cardDeck');
@@ -204,14 +202,11 @@ function proceedToDrawing() {
     createCardDeck();
 }
 
-// --- 輔助牌功能 (回復) ---
+// --- 輔助牌功能 ---
 
 function drawSupportCard(position) {
     if (shuffledDeck.length === 0) { alert('沒有剩餘的牌可以抽取了！'); return; }
-    if (!supportCards[position]) {
-        supportCards[position] = [];
-        supportCardCounts[position] = 0;
-    }
+    if (!supportCards[position]) { supportCards[position] = []; supportCardCounts[position] = 0; }
     if (supportCardCounts[position] >= 2) { alert('此位置已達到輔助牌上限！'); return; }
     
     const cardIndex = Math.floor(Math.random() * shuffledDeck.length);
@@ -241,7 +236,7 @@ function updateSupportButton(position) {
     }
 }
 
-// --- 結果展示 ---
+// --- 占卜結果顯示 (修正心態牌樣式) ---
 
 function revealResults() {
     document.getElementById('drawSection').classList.add('hidden');
@@ -254,43 +249,46 @@ function revealResults() {
 function displayResults() {
     const mc = document.getElementById('resultMindsetCard');
     const mo = mindsetCard.reversed ? '逆位' : '正位';
+    
+    // 修正：將心態牌的按鈕與容器移出 flex 行，與其他牌卡保持一致的「下方居中」結構
     mc.innerHTML = `
         <div class="bg-gradient-to-r from-purple-900/30 to-blue-900/10 rounded-lg p-6 mb-6 border border-yellow-300/30">
             <div class="flex items-center gap-6">
                 ${imageOrFallbackHTML(mindsetCard, 'lg')}
-                <div class="flex-1">
-                    <h3 class="text-xl font-semibold text-yellow-300 mb-2">💭 心態牌 - ${mo}</h3>
+                <div class="flex-1 text-left">
+                    <h3 class="text-xl font-semibold text-yellow-300 mb-1">💭 心態牌</h3>
+                    <h4 class="text-lg font-medium text-white mb-2">${mindsetCard.name} (${mo})</h4>
                     <p class="text-blue-200">${mindsetCard.reversed ? mindsetCard.reversedMeaning : mindsetCard.meaning}</p>
-                    <div class="mt-4">
-                        <button onclick="drawSupportCard('mindset')" class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-200 py-1 px-3 rounded-lg text-sm">
-                            ✨ 抽取輔助牌 (<span id="mindset-support-count">2</span>/2)
-                        </button>
-                    </div>
-                    <div id="mindset-support-cards" class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3"></div>
                 </div>
             </div>
+            <div class="text-center mt-6">
+                <button onclick="drawSupportCard('mindset')" class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-200 py-2 px-4 rounded-lg transition-all duration-300 text-sm">
+                    ✨ 抽取輔助牌 (<span id="mindset-support-count">2</span>/2)
+                </button>
+            </div>
+            <div id="mindset-support-cards" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3"></div>
         </div>`;
       
     const rc = document.getElementById('resultCards'); 
     rc.innerHTML = '';
     drawnCards.forEach((card, index) => {
         const div = document.createElement('div');
-        div.className = "bg-white/10 rounded-lg p-6 mb-4 border border-blue-400/20";
+        div.className = "bg-gradient-to-r from-blue-900/20 to-indigo-900/10 rounded-lg p-6 mb-4 border border-blue-400/20";
         div.innerHTML = `
             <div class="flex items-center gap-5">
                 ${imageOrFallbackHTML(card, 'lg')}
-                <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-blue-300">${index + 1}. ${card.position}</h3>
+                <div class="flex-1 text-left">
+                    <h3 class="text-lg font-semibold text-blue-300 mb-1">${index + 1}. ${card.position}</h3>
                     <h4 class="text-white">${card.name} (${card.reversed ? '逆位' : '正位'})</h4>
                     <p class="text-blue-200">${card.reversed ? card.reversedMeaning : card.meaning}</p>
                 </div>
             </div>
-            <div class="text-center mt-4">
-                <button onclick="drawSupportCard(${index})" class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-200 py-2 px-4 rounded-lg text-sm">
+            <div class="text-center mt-6">
+                <button onclick="drawSupportCard(${index})" class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-200 py-2 px-4 rounded-lg transition-all duration-300 text-sm">
                     ✨ 抽取輔助牌 (<span id="support-count-${index}">2</span>/2)
                 </button>
             </div>
-            <div id="support-cards-${index}" class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3"></div>`;
+            <div id="support-cards-${index}" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3"></div>`;
         rc.appendChild(div);
     });
 }
@@ -300,12 +298,13 @@ function displayResults() {
 function displaySupportCard(position, card, cardNumber) {
     const ori = card.reversed ? '逆位' : '正位';
     const html = `
-        <div class="bg-yellow-900/20 rounded-lg p-3 border border-yellow-400/30 mt-2">
+        <div class="bg-yellow-900/20 backdrop-blur-sm rounded-lg p-4 border border-yellow-400/30 mt-2">
             <div class="flex items-center gap-3">
                 ${imageOrFallbackHTML(card, 'md')}
-                <div class="flex-1 text-sm">
-                    <h5 class="text-yellow-400">${card.name} (${ori})</h5>
-                    <p class="text-blue-200">${card.reversed ? card.reversedMeaning : card.meaning}</p>
+                <div class="flex-1 text-left">
+                    <h5 class="text-sm font-semibold text-yellow-400 mb-1">輔助牌 ${cardNumber}</h5>
+                    <h6 class="text-white text-xs mb-1">${card.name} (${ori})</h6>
+                    <p class="text-blue-200 text-xs">${card.reversed ? card.reversedMeaning : card.meaning}</p>
                 </div>
             </div>
         </div>`;
@@ -346,7 +345,7 @@ function displayMindsetCard() {
     el.innerHTML = `
         <div class="flex items-center justify-center gap-6">
             ${imageOrFallbackHTML(mindsetCard, 'xl')}
-            <div class="flex-1">
+            <div class="flex-1 text-left">
                 <h3 class="text-2xl font-semibold text-yellow-300 mb-2">💭 心態牌 - ${ori}</h3>
                 <p class="text-blue-200 text-lg">${mindsetCard.reversed ? mindsetCard.reversedMeaning : mindsetCard.meaning}</p>
             </div>
