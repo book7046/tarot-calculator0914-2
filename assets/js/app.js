@@ -1,7 +1,7 @@
 // assets/js/app.js
 
 // 狀態變數
-let currentType = ""; // 新增：問題類型
+let currentType = "";
 let currentQuestion = "";
 let currentSpread = "";
 let selectedCards = [];
@@ -13,22 +13,22 @@ let supportCards = {};
 let supportCardCounts = {};
 let deferredPrompt;
 
-// 新增：問題類型配置與範例
+// 問題類型配置與範例
 const typeConfig = {
     choice: {
-        examples: "💡 選擇型範例：『請問塔羅牌，我想知道我現在在工作上該做那個選擇對我未來比較好,如果選擇離職對我比較好是選項A,如果選擇繼續待在現在的公司對我比較好是選項B？』",
+        examples: "💡 選擇型範例：『我該選 A 工作還是 B 工作？』、『這週末該出國旅遊還是留在家休息？』",
         spreads: ['choice']
     },
     advice: {
-        examples: "💡 建議型範例：『請問塔羅牌,我該怎麼做才能把塔羅牌學好,請塔羅牌給我一個建議？』",
+        examples: "💡 建議型範例：『我該如何改善目前的人際僵局？』、『針對這項新計畫，塔羅牌有什麼指引？』",
         spreads: ['advice']
     },
     result: {
-        examples: "💡 結果型範例：請問塔羅牌,我想知道我這個月的工作運會如何？』、『請問塔羅牌,我想知道月底業績會如何？』",
+        examples: "💡 結果型範例：『下個月的面試結果會順利嗎？』、『我投資的這檔標的未來發展如何？』",
         spreads: ['timeflow', 'davidstar', 'ushape']
     },
     relationship: {
-        examples: "💡 關係型範例：『請問塔羅牌,我想知道我跟xxx三個月(下時間點)內感情如何？』、『我想知道我跟xxx一起合作創業結果會如何？』",
+        examples: "💡 關係型範例：『我與對方的感情未來發展？』、『與這家廠商的合作會成功嗎？』",
         spreads: ['relationship']
     }
 };
@@ -40,14 +40,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupEventListeners() {
-    // 新增：問題類型按鈕點擊
+    // 問題類型選擇
     document.querySelectorAll('.type-option').forEach(btn => {
         btn.addEventListener('click', function() {
             selectType(this.dataset.type);
         });
     });
 
-    // 新增：回上一步按鈕
+    // 回上一步按鈕邏輯
     document.getElementById('backToTypeBtn').addEventListener('click', () => {
         document.getElementById('questionSection').classList.add('hidden');
         document.getElementById('typeSection').classList.remove('hidden');
@@ -73,20 +73,15 @@ function setupEventListeners() {
     document.getElementById('newReadingBtn').addEventListener('click', startNewReading);
 }
 
-// 新增：選擇問題類型邏輯
+// 選擇問題類型並切換
 function selectType(type) {
     currentType = type;
-    const config = typeConfig[type];
-    
-    // 顯示對應範例
-    document.getElementById('questionExample').textContent = config.examples;
-    
-    // 切換顯示區塊
+    document.getElementById('questionExample').textContent = typeConfig[type].examples;
     document.getElementById('typeSection').classList.add('hidden');
     document.getElementById('questionSection').classList.remove('hidden');
 }
 
-// 修改：進入牌陣選擇時過濾顯示
+// 進入牌陣選擇並進行過濾
 function showSpreadSelection() {
     const question = document.getElementById('questionInput').value.trim();
     if (!question) { alert('請先輸入你的問題！'); return; }
@@ -95,15 +90,116 @@ function showSpreadSelection() {
     document.getElementById('questionSection').classList.add('hidden');
     document.getElementById('spreadSection').classList.remove('hidden');
 
-    // 根據 currentType 過濾牌陣選項
-    const allowedSpreads = typeConfig[currentType].spreads;
+    const allowed = typeConfig[currentType].spreads;
     document.querySelectorAll('.spread-option').forEach(option => {
-        if (allowedSpreads.includes(option.dataset.spread)) {
-            option.style.display = 'block';
-        } else {
-            option.style.display = 'none';
-        }
+        option.style.display = allowed.includes(option.dataset.spread) ? 'block' : 'none';
     });
+}
+
+// 修復手機版扇形抽牌顯示
+function createCardDeck() {
+    const deck = document.getElementById('cardDeck');
+    const container = deck.parentElement;
+    deck.innerHTML = '';
+    
+    const totalCards = shuffledDeck.length;
+    const fanAngle = 140;
+    const angleStep = fanAngle / (totalCards - 1);
+    const startAngle = -fanAngle / 2;
+
+    const containerWidth = container.offsetWidth;
+    const radius = containerWidth < 500 ? containerWidth * 0.4 : 280; 
+    const yOffset = containerWidth < 500 ? 120 : 150; 
+
+    for (let i = 0; i < totalCards; i++) {
+        const card = document.createElement('div');
+        card.className = 'fan-card card-back rounded-lg flex items-center justify-center text-lg';
+        card.innerHTML = '🌟';
+
+        const angle = startAngle + (i * angleStep);
+        const radian = (angle * Math.PI) / 180;
+        const x = Math.sin(radian) * radius;
+        const y = -Math.cos(radian) * radius * 0.4 + yOffset;
+        
+        card.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+        card.style.zIndex = 50 - Math.abs(i - Math.floor(totalCards / 2));
+
+        const cardData = shuffledDeck[i];
+        card.addEventListener('click', function () { drawCard(this, cardData); });
+        deck.appendChild(card);
+    }
+}
+
+// 修正抽牌完成後的訊息顯示
+function drawCard(cardElement, selectedCard) {
+    if (selectedCards.length >= spreads[currentSpread].cardCount) return;
+    
+    const isReversed = Math.random() < 0.5;
+    drawnCards.push({
+        ...selectedCard,
+        reversed: isReversed,
+        position: spreads[currentSpread].positions[selectedCards.length]
+    });
+    selectedCards.push(cardElement);
+    
+    const idx = shuffledDeck.indexOf(selectedCard);
+    if (idx !== -1) shuffledDeck.splice(idx, 1);
+    
+    cardElement.classList.add('selected');
+    const remaining = spreads[currentSpread].cardCount - selectedCards.length;
+    const msgElement = document.getElementById('cardsNeeded').parentElement;
+
+    if (remaining > 0) {
+        document.getElementById('cardsNeeded').textContent = remaining;
+    } else {
+        msgElement.innerHTML = '✨ <span id="cardsNeeded" class="text-green-400 font-bold">抽牌已完成</span>';
+        document.getElementById('revealBtn').classList.remove('hidden');
+    }
+}
+
+function proceedToDrawing() {
+    document.getElementById('mindsetSection').classList.add('hidden');
+    document.getElementById('drawSection').classList.remove('hidden');
+    
+    // 重置抽牌提示文字格式
+    const drawHint = document.querySelector('#drawSection h2 + p');
+    drawHint.innerHTML = '還需抽取 <span id="cardsNeeded" class="text-yellow-300">0</span> 張';
+    
+    document.getElementById('cardsNeeded').textContent = spreads[currentSpread].cardCount;
+    createCardDeck();
+}
+
+function startNewReading() {
+    currentType = ""; currentQuestion = ""; currentSpread = "";
+    selectedCards = []; drawnCards = []; shuffledDeck = []; mindsetCard = null;
+    shuffleRemaining = 3; supportCards = {}; supportCardCounts = {};
+    
+    document.getElementById('questionInput').value = "";
+    document.getElementById('resultSection').classList.add('hidden');
+    document.getElementById('typeSection').classList.remove('hidden');
+}
+
+// PWA 安裝邏輯
+function setupPWAInstall() {
+    const installBtn = document.getElementById('installAppBtn');
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if(installBtn) installBtn.classList.remove('hidden');
+    });
+
+    if(installBtn) {
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installBtn.classList.add('hidden');
+                }
+                deferredPrompt = null;
+            }
+        });
+    }
 }
 
 // --- PWA 安裝邏輯 ---
