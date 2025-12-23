@@ -16,19 +16,19 @@ let deferredPrompt;
 // 問題類型配置與範例
 const typeConfig = {
     choice: {
-        examples: "💡 選擇型範例：『我該選 A 工作還是 B 工作？』、『這週末該出國旅遊還是留在家休息？』",
+        examples: "💡 選擇型範例：『請問塔羅牌，我想知道我現在在工作上該做那個選擇對我未來比較好,如果選擇離職對我比較好是選項A,如果選擇繼續待在現在的公司對我比較好是選項B？』",
         spreads: ['choice']
     },
     advice: {
-        examples: "💡 建議型範例：『我該如何改善目前的人際僵局？』、『針對這項新計畫，塔羅牌有什麼指引？』",
+        examples: "💡 建議型範例：『請問塔羅牌,我該怎麼做才能把塔羅牌學好,請塔羅牌給我一個建議？』",
         spreads: ['advice']
     },
     result: {
-        examples: "💡 結果型範例：『下個月的面試結果會順利嗎？』、『我投資的這檔標的未來發展如何？』",
+        examples: "💡 結果型範例：請問塔羅牌,我想知道我這個月的工作運會如何？』、『請問塔羅牌,我想知道月底業績會如何？』",
         spreads: ['timeflow', 'davidstar', 'ushape']
     },
     relationship: {
-        examples: "💡 關係型範例：『我與對方的感情未來發展？』、『與這家廠商的合作會成功嗎？』",
+        examples: "💡 關係型範例：『請問塔羅牌,我想知道我跟xxx三個月(下時間點)內感情如何？』、『我想知道我跟xxx一起合作創業結果會如何？』",
         spreads: ['relationship']
     }
 };
@@ -96,19 +96,21 @@ function showSpreadSelection() {
     });
 }
 
-// 修復手機版扇形抽牌顯示
 function createCardDeck() {
     const deck = document.getElementById('cardDeck');
-    const container = deck.parentElement;
+    const container = document.querySelector('.fan-container');
     deck.innerHTML = '';
     
     const totalCards = shuffledDeck.length;
-    const fanAngle = 140;
+    const fanAngle = 140; // 扇形展開角度
     const angleStep = fanAngle / (totalCards - 1);
     const startAngle = -fanAngle / 2;
 
+    // --- 響應式佈局計算 ---
     const containerWidth = container.offsetWidth;
-    const radius = containerWidth < 500 ? containerWidth * 0.4 : 280; 
+    // 根據螢幕寬度動態調整半徑 (手機版約 150-180，電腦版固定 280)
+    const radius = Math.min(280, containerWidth * 0.45); 
+    // 調整 Y 軸偏移，確保牌堆垂直居中
     const yOffset = containerWidth < 500 ? 120 : 150; 
 
     for (let i = 0; i < totalCards; i++) {
@@ -130,9 +132,10 @@ function createCardDeck() {
     }
 }
 
-// 修正抽牌完成後的訊息顯示
+// 2. 修正抽牌訊息顯示邏輯 (顯示已抽張數/總張數)
 function drawCard(cardElement, selectedCard) {
-    if (selectedCards.length >= spreads[currentSpread].cardCount) return;
+    const totalNeeded = spreads[currentSpread].cardCount;
+    if (selectedCards.length >= totalNeeded) return;
     
     const isReversed = Math.random() < 0.5;
     drawnCards.push({
@@ -146,26 +149,31 @@ function drawCard(cardElement, selectedCard) {
     if (idx !== -1) shuffledDeck.splice(idx, 1);
     
     cardElement.classList.add('selected');
-    const remaining = spreads[currentSpread].cardCount - selectedCards.length;
-    const msgElement = document.getElementById('cardsNeeded').parentElement;
+
+    // --- 更新訊息顯示邏輯 ---
+    const currentDrawn = selectedCards.length;
+    const remaining = totalNeeded - currentDrawn;
+    const infoText = document.querySelector('#drawSection p'); // 取得提示文字段落
 
     if (remaining > 0) {
-        document.getElementById('cardsNeeded').textContent = remaining;
+        infoText.innerHTML = `還需抽取 <span id="cardsNeeded" class="text-yellow-300 font-bold">${remaining}</span> 張 (進度: ${currentDrawn}/${totalNeeded})`;
     } else {
-        msgElement.innerHTML = '✨ <span id="cardsNeeded" class="text-green-400 font-bold">抽牌已完成</span>';
+        // 完成時更新為整段文字，避免出現「還需抽取 已完成 張」
+        infoText.innerHTML = `<span class="text-green-400 font-bold">✨ 抽牌已完成 (${totalNeeded}/${totalNeeded})</span>`;
         document.getElementById('revealBtn').classList.remove('hidden');
     }
 }
 
+// 3. 確保初始化時文字顯示正確
 function proceedToDrawing() {
     document.getElementById('mindsetSection').classList.add('hidden');
     document.getElementById('drawSection').classList.remove('hidden');
     
-    // 重置抽牌提示文字格式
-    const drawHint = document.querySelector('#drawSection h2 + p');
-    drawHint.innerHTML = '還需抽取 <span id="cardsNeeded" class="text-yellow-300">0</span> 張';
+    const total = spreads[currentSpread].cardCount;
+    // 初始化抽牌提示文字
+    const infoText = document.querySelector('#drawSection p');
+    infoText.innerHTML = `還需抽取 <span id="cardsNeeded" class="text-yellow-300 font-bold">${total}</span> 張 (進度: 0/${total})`;
     
-    document.getElementById('cardsNeeded').textContent = spreads[currentSpread].cardCount;
     createCardDeck();
 }
 
