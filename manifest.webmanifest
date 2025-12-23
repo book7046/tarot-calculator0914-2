@@ -1,6 +1,6 @@
 {
-  "name": "塔羅靈數計算器 (離線版)",
-  "short_name": "靈數計算器",
+  "name": "布克塔羅占卜 (離線版)",
+  "short_name": "布克塔羅占卜",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
