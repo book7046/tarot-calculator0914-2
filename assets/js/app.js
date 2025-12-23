@@ -1,6 +1,7 @@
 // assets/js/app.js
 
 // 狀態變數
+let currentType = ""; // 新增：問題類型
 let currentQuestion = "";
 let currentSpread = "";
 let selectedCards = [];
@@ -10,7 +11,27 @@ let mindsetCard = null;
 let shuffleRemaining = 3;
 let supportCards = {};
 let supportCardCounts = {};
-let deferredPrompt; // 用於儲存 PWA 安裝事件
+let deferredPrompt;
+
+// 新增：問題類型配置與範例
+const typeConfig = {
+    choice: {
+        examples: "💡 選擇型範例：『請問塔羅牌，我想知道我現在在工作上該做那個選擇對我未來比較好,如果選擇離職對我比較好是選項A,如果選擇繼續待在現在的公司對我比較好是選項B？』",
+        spreads: ['choice']
+    },
+    advice: {
+        examples: "💡 建議型範例：『請問塔羅牌,我該怎麼做才能把塔羅牌學好,請塔羅牌給我一個建議？』",
+        spreads: ['advice']
+    },
+    result: {
+        examples: "💡 結果型範例：請問塔羅牌,我想知道我這個月的工作運會如何？』、『請問塔羅牌,我想知道月底業績會如何？』",
+        spreads: ['timeflow', 'davidstar', 'ushape']
+    },
+    relationship: {
+        examples: "💡 關係型範例：『請問塔羅牌,我想知道我跟xxx三個月(下時間點)內感情如何？』、『我想知道我跟xxx一起合作創業結果會如何？』",
+        spreads: ['relationship']
+    }
+};
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
@@ -19,13 +40,32 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupEventListeners() {
-    // 綁定各個按鈕事件
+    // 新增：問題類型按鈕點擊
+    document.querySelectorAll('.type-option').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectType(this.dataset.type);
+        });
+    });
+
+    // 新增：回上一步按鈕
+    document.getElementById('backToTypeBtn').addEventListener('click', () => {
+        document.getElementById('questionSection').classList.add('hidden');
+        document.getElementById('typeSection').classList.remove('hidden');
+    });
+
+    document.getElementById('backToQuestionBtn').addEventListener('click', () => {
+        document.getElementById('spreadSection').classList.add('hidden');
+        document.getElementById('questionSection').classList.remove('hidden');
+    });
+
     document.getElementById('nextBtn').addEventListener('click', showSpreadSelection);
+    
     document.querySelectorAll('.spread-option').forEach(option => {
         option.addEventListener('click', function() {
             selectSpread(this.dataset.spread);
         });
     });
+
     document.getElementById('shuffleCardsBtn').addEventListener('click', performShuffle);
     document.getElementById('cutCardsBtn').addEventListener('click', performCut);
     document.getElementById('proceedToDrawBtn').addEventListener('click', proceedToDrawing);
@@ -33,13 +73,45 @@ function setupEventListeners() {
     document.getElementById('newReadingBtn').addEventListener('click', startNewReading);
 }
 
-// --- PWA 安裝邏輯 (新增) ---
+// 新增：選擇問題類型邏輯
+function selectType(type) {
+    currentType = type;
+    const config = typeConfig[type];
+    
+    // 顯示對應範例
+    document.getElementById('questionExample').textContent = config.examples;
+    
+    // 切換顯示區塊
+    document.getElementById('typeSection').classList.add('hidden');
+    document.getElementById('questionSection').classList.remove('hidden');
+}
+
+// 修改：進入牌陣選擇時過濾顯示
+function showSpreadSelection() {
+    const question = document.getElementById('questionInput').value.trim();
+    if (!question) { alert('請先輸入你的問題！'); return; }
+    currentQuestion = question;
+    
+    document.getElementById('questionSection').classList.add('hidden');
+    document.getElementById('spreadSection').classList.remove('hidden');
+
+    // 根據 currentType 過濾牌陣選項
+    const allowedSpreads = typeConfig[currentType].spreads;
+    document.querySelectorAll('.spread-option').forEach(option => {
+        if (allowedSpreads.includes(option.dataset.spread)) {
+            option.style.display = 'block';
+        } else {
+            option.style.display = 'none';
+        }
+    });
+}
+
+// --- PWA 安裝邏輯 ---
 function setupPWAInstall() {
     const installBtn = document.getElementById('installAppBtn');
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        // 顯示安裝按鈕
         if(installBtn) installBtn.classList.remove('hidden');
     });
 
@@ -57,15 +129,7 @@ function setupPWAInstall() {
     }
 }
 
-// --- 核心邏輯 ---
-
-function showSpreadSelection() {
-    const question = document.getElementById('questionInput').value.trim();
-    if (!question) { alert('請先輸入你的問題！'); return; }
-    currentQuestion = question;
-    document.getElementById('questionSection').classList.add('hidden');
-    document.getElementById('spreadSection').classList.remove('hidden');
-}
+// --- 核心邏輯 (維持大部分不變) ---
 
 function selectSpread(spreadType) {
     currentSpread = spreadType;
@@ -77,7 +141,6 @@ function selectSpread(spreadType) {
     document.getElementById('shuffleCardsBtn').classList.remove('hidden');
     document.getElementById('cutCardsBtn').classList.add('hidden');
     
-    // 從 tarot-data.js 獲取資料
     if (typeof tarotCards !== 'undefined') {
         shuffledDeck = [...tarotCards];
     } else {
@@ -236,7 +299,9 @@ function updateSupportButton(position) {
     }
 }
 
+// 修改：啟動新占卜時回到類型選擇
 function startNewReading() {
+    currentType = "";
     currentQuestion = "";
     currentSpread = "";
     selectedCards = [];
@@ -253,13 +318,12 @@ function startNewReading() {
     document.getElementById('mindsetSection').classList.add('hidden');
     document.getElementById('drawSection').classList.add('hidden');
     document.getElementById('spreadSection').classList.add('hidden');
-    document.getElementById('questionSection').classList.remove('hidden');
+    document.getElementById('questionSection').classList.add('hidden');
+    document.getElementById('typeSection').classList.remove('hidden'); // 新增
 }
 
-// --- 圖像輔助函式 (優化版：加入 Lazy Loading) ---
-
+// --- 圖像輔助函式與顯示函數維持不變 ---
 function getCardImagePath(card){
-    // 簡單查表，若找不到則回傳 missing
     if (typeof tarotCards === 'undefined') return 'assets/cards/__missing__.jpg';
     let idx = tarotCards.findIndex(c => c.name === card.name);
     if (idx < 0) return 'assets/cards/__missing__.jpg';
@@ -271,7 +335,6 @@ function imageOrFallbackHTML(card, sizeClass) {
     const reversed = card.reversed ? 'rws-reversed' : '';
     const src = getCardImagePath(card);
     const safeName = (card.name||'') + (card.reversed?'（逆位）':'（正位）');
-    // 優化：加入 loading="lazy"
     return `<div class="rws-card-frame">
       <img class="rws-img ${sizeClass||'lg'} ${reversed}" src="${src}" alt="${safeName}" loading="lazy" onerror="this.closest('.rws-card-frame').classList.add('no-img')"/>
       <div class="rws-fallback ${reversed}">
