@@ -16,19 +16,19 @@ let deferredPrompt;
 // --- 問題類型配置 ---
 const typeConfig = {
     choice: {
-        examples: "💡 選擇型範例：『我該選 A 工作還是 B 工作？』",
+        examples: "💡 選擇型範例：『請問塔羅牌，我想知道我現在在工作上該做那個選擇對我未來比較好,如果選擇離職對我比較好是選項A,如果選擇繼續待在現在的公司對我比較好是選項B？』",
         spreads: ['choice']
     },
     advice: {
-        examples: "💡 建議型範例：『針對這項新計畫，塔羅牌有什麼指引？』",
+        examples: "💡 建議型範例：『請問塔羅牌,我該怎麼做才能把塔羅牌學好,請塔羅牌給我一個建議？』",
         spreads: ['advice']
     },
     result: {
-        examples: "💡 結果型範例：『下個月的面試結果會順利嗎？』",
+        examples: "💡 結果型範例：請問塔羅牌,我想知道我這個月的工作運會如何？』、『請問塔羅牌,我想知道月底業績會如何？』",
         spreads: ['timeflow', 'davidstar', 'ushape']
     },
     relationship: {
-        examples: "💡 關係型範例：『我與對方的感情未來發展？』",
+        examples: "💡 關係型範例：『請問塔羅牌,我想知道我跟xxx三個月(下時間點)內感情如何？』、『我想知道我跟xxx一起合作創業結果會如何？』",
         spreads: ['relationship']
     }
 };
@@ -359,3 +359,4 @@ function setupPWAInstall() {
         if(installBtn) installBtn.classList.remove('hidden');
     });
 }
+
