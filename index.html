@@ -7,6 +7,7 @@
   
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#1e3c72">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="color-scheme" content="light">
   
@@ -18,21 +19,31 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32x32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-512x512.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-192x192.png">
 
   <style>
     body { font-family: 'Noto Sans TC', sans-serif; }
-    .rws-card-frame{position:relative;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+    
+    /* 卡片樣式 */
+    .rws-card-frame{position:relative;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0; flex-direction: column;}
     .rws-img{width:8rem;height:auto;border-radius:.5rem;box-shadow:0 8px 24px rgba(0,0,0,.3); transition: transform 0.3s;}
     .rws-img.sm{width:4rem}.rws-img.md{width:6rem}.rws-img.lg{width:8rem}.rws-img.xl{width:12rem}
     .rws-reversed{transform:rotate(180deg)}
-    .rws-fallback{display:none;width:8rem;height:12rem;border-radius:.5rem;background:linear-gradient(135deg,rgba(253,224,71,.12),rgba(59,130,246,.12));border:1px solid rgba(253,224,71,.25);padding:.5rem;text-align:center;justify-content:center;align-items:center;flex-direction:column}
+    /* 錯誤處理樣式 */
+    .rws-fallback{display:none;width:100%;height:100%;min-height:120px;border-radius:.5rem;background:linear-gradient(135deg,rgba(253,224,71,.12),rgba(59,130,246,.12));border:1px solid rgba(253,224,71,.25);padding:.5rem;text-align:center;justify-content:center;align-items:center;flex-direction:column}
     .rws-card-frame.no-img .rws-fallback{display:flex}
+    .rws-card-frame.no-img .rws-img { display: none; }
+
+    /* 扇形抽牌區 (保留原樣) */
     .fan-container { position: relative; width: 100%; height: 500px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
     .fan-card { position: absolute; width: 60px; height: 90px; transition: all 0.3s ease; transform-origin: bottom center; cursor: pointer; }
     .fan-card:hover { transform: translateY(-20px) scale(1.1); z-index: 100; }
     .fan-card.selected { opacity: 0.3; pointer-events: none; }
+    
+    /* 視覺化牌陣專用樣式 */
+    .spread-grid-label { font-size: 0.75rem; color: #fef08a; text-align: center; margin-top: 0.25rem; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; }
+    .visual-card-container { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
   </style>
 </head>
 <body class="mystical-bg min-h-screen text-white">
@@ -122,7 +133,7 @@
                 </div>								  
 				<div class="spread-option bg-white/20 backdrop-blur-sm rounded-lg p-4 cursor-pointer hover:bg-white/30 transition-all duration-300 border border-yellow-300/50" data-spread="choice">
                     <h3 class="text-lg font-semibold mb-2">選擇牌陣</h3><p class="text-sm text-blue-200">生活上遇到選擇上的難題時使用</p>
-			        <div class="flex justify-center">
+			       <div class="flex justify-center">
                         <div class="flex flex-col items-center gap-1">
                             <div class="flex gap-4">
                                 <div class="w-4 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded border border-yellow-300"></div>
@@ -134,7 +145,7 @@
                             </div>
                             <div class="flex gap-1"><div class="w-4 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded border border-yellow-300"></div></div>
                         </div>
-                    </div>				  
+                    </div>						  
                 </div>
 				<div class="spread-option bg-white/20 backdrop-blur-sm rounded-lg p-4 cursor-pointer hover:bg-white/30 transition-all duration-300 border border-yellow-300/50" data-spread="relationship">
                     <h3 class="text-lg font-semibold mb-2">關係牌陣</h3><p class="text-sm text-blue-200">任何人與人之間的情感關係,合作關係,或事情都可以使用</p>
@@ -194,16 +205,24 @@
             </div>
         </div>
 
-        <div id="resultSection" class="max-w-6xl mx-auto hidden">
+        <div id="resultSection" class="max-w-6xl mx-auto hidden pb-20">
             <div class="text-center mb-6">
                 <h2 class="text-2xl font-semibold mb-2">🌟 占卜結果</h2>
-                <div id="questionDisplay" class="text-lg text-yellow-300 mb-2"></div>
-                <div id="spreadName" class="text-blue-200"></div>
+                <div id="questionDisplay" class="text-lg text-yellow-300 mb-2 font-medium"></div>
+                <div id="spreadName" class="text-blue-200 text-sm"></div>
             </div>
-            <div id="resultMindsetCard" class="mb-8"></div>
-            <div id="resultCards" class="mb-8"></div>
-            <div class="text-center">
-                <button id="newReadingBtn" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-8 rounded-lg glow">🔮 開始新的占卜</button>
+            
+            <div id="resultMindsetCard" class="mb-10"></div>
+            
+            <div class="mb-4 text-center text-xl font-bold text-yellow-300">🎴 牌陣一覽</div>
+            <div id="resultSpreadVisual" class="mb-12 flex justify-center items-center overflow-x-auto min-h-[350px] p-6 bg-white/5 rounded-xl border border-white/10 shadow-inner relative">
+                </div>
+
+            <div class="mb-4 text-center text-xl font-bold text-yellow-300">📖 詳細解說</div>
+            <div id="resultCards" class="grid grid-cols-1 gap-6 mb-8"></div>
+            
+            <div class="text-center mt-12">
+                <button id="newReadingBtn" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-8 rounded-lg glow shadow-lg transform hover:scale-105 transition-all">🔮 開始新的占卜</button>
             </div>
         </div>
     </div>
