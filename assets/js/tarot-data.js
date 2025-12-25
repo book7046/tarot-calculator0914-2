@@ -82,12 +82,13 @@ const tarotCards = [
 ];
 
 // 牌陣配置
-const spreads = {
-    timeflow: { name: "時間之流", positions: ["過去", "現在", "未來"], cardCount: 3 },
-    davidstar: { name: "大衛之星牌陣", positions: ["過去", "現在", "未來", "原因", "環境", "對策"], cardCount: 6 },
-    ushape: { name: "U型牌陣", positions: ["過去", "現在", "中間過程", "慣性方向", "環境", "困難", "答案"], cardCount: 7 },
-    choice: { name: "選擇牌陣", positions: ["現況", "選項A過程", "選項B過程", "選項A結果", "選項B結果"], cardCount: 5 },
-    relationship: { name: "關係(感情牌陣)", positions: ["抽牌人現況(狀態)", "對方現況(狀態)", "過程", "結果"], cardCount: 4 },
-    advice: { name: "建議牌陣(解藥牌陣)", positions: ["現況", "建議"], cardCount: 2 }
-
-};
+//const spreads = {
+//    timeflow: { name: "時間之流", positions: ["過去", "現在", "未來"], cardCount: 3 },
+//    davidstar: { name: "大衛之星牌陣", positions: ["過去", "現在", "未來", "原因", "環境", "對策"], cardCount: 6 },
+//    ushape: { name: "U型牌陣", positions: ["過去", "現在", "中間過程", "慣性方向", "環境", "困難", "答案"], cardCount: 7 },
+//    choice: { name: "選擇牌陣", positions: ["現況", "選項A過程", "選項B過程", "選項A結果", "選項B結果"], cardCount: 5 },
+//    relationship: { name: "關係(感情牌陣)", positions: ["抽牌人現況(狀態)", "對方現況(狀態)", "過程", "結果"], cardCount: 4 },
+//    advice: { name: "建議牌陣(解藥牌陣)", positions: ["現況", "建議"], cardCount: 2 }
+//
+//};
+//
